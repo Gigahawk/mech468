@@ -121,7 +121,7 @@ $u_{1o} = 1$,
 $u_{2o} = 0$.
 \begin{align*}
 \begin{bmatrix}
-\dot{x_1} \\ \dot{x_2}
+\dot{x}_1 \\ \dot{x}_2
 \end{bmatrix}
 &=
 \begin{bmatrix}
@@ -193,6 +193,11 @@ u_2 = 0;
 A = [...
     -2*x_2^2, -4*x_1*x_2 + u_1;...
     exp(-x_1*u_1)*x_2*u_1 + u_2, -exp(-x_1*u_1)]
+B = [...
+    x_2, 0;...
+    exp(-x_1*u_1)*x_2*x_1, x_1]
+C = [u_1*u_2, 0]
+D = [x_1*u_2, x_1*u_1]
 #+end_src
 
 #+RESULTS:
@@ -200,45 +205,18 @@ A = [...
 A =
          0    1.0000
          0   -0.3679
-#+end_src
-
-#+begin_src matlab :session :exports both :results output code
-B = [...
-    x_2, 0;...
-    exp(-x_1*u_1)*x_2*x_1, x_1]
-#+end_src
-
-#+RESULTS:
-#+begin_src matlab
 B =
      0     0
      0     1
-#+end_src
-
-#+begin_src matlab :session :exports both :results output code
-C = [u_1*u_2, 0]
-#+end_src
-
-#+RESULTS:
-#+begin_src matlab
 C =
      0     0
-#+end_src
-
-#+begin_src matlab :session :exports both :results output code
-D = [x_1*u_2, x_1*u_1]
-#+end_src
-
-#+RESULTS:
-#+begin_src matlab
 D =
      0     1
 #+end_src
-
 ** Q3
-Calculate the matrix exponential $e^{At}$ for the following A matrix.
+Calculate the matrix exponential $e^{\mathbf{A}t}$ for the following $\mathbf{A}$ matrix.
 \begin{equation*}
-A = 
+\mathbf{A} = 
 \begin{bmatrix}
 -1 & 1 & 0 \\
 0 & -1 & 0 \\
@@ -246,9 +224,9 @@ A =
 \end{bmatrix}
 \end{equation*}
 *** Answer
-First let's find the eigenvalues of $A$
+First let's find the eigenvalues of $\mathbf{A}$
 \begin{align*}
-0 &= |A - \lambda I| \\
+0 &= |\mathbf{A} - \lambda \mathbf{I}| \\
 &=
 \left|
 \begin{bmatrix}
@@ -263,7 +241,7 @@ First let's find the eigenvalues of $A$
 \lambda &= -1, -1, -2
 \end{align*}
 
-Plugging in to find the eigen vectors of $A$:
+Plugging in to find the eigenvectors of $\mathbf{A}$:
 \begin{equation*}
 \begin{bmatrix}
 -1 - \lambda & 1 & 0 \\
@@ -306,7 +284,7 @@ x_1 &\neq 0 \\
 \end{align*}
 There is only one free variable in $x_1$, hence this matrix is not diagonalizable.
 
-Let's instead find $e^{At}$ by taking the inverse Laplace transform:
+Let's instead find $e^{\mathbf{A}t}$ by taking the inverse Laplace transform:
 
 First let's find our inverse matrix[fn:fourthyear] and do the partial fraction expansion:
 #+begin_src matlab :session :exports both :results output code
@@ -334,7 +312,7 @@ ans =
 
 
 \begin{align*}
-(s\mathbf{I} - A)^{-1}
+(s\mathbf{I} - \mathbf{A})^{-1}
 &=
 \begin{bmatrix}
 \frac{1}{s + 1} & \frac{1}{(s + 1)^2} & 0 \\
@@ -356,11 +334,13 @@ ans =
 0 & 0 & (s^2 + 2s + 1)
 \end{bmatrix} \\
 &=
-\frac{K_1}{s + 1} + \frac{K_2}{(s + 1)^2} + \frac{K_3}{s + 2} \\
+\frac{\mathbf{K}_1}{s + 1} +
+\frac{\mathbf{K}_2}{(s + 1)^2} +
+\frac{\mathbf{K}_3}{s + 2}
 \end{align*}
-Solving for $K_3$:
+Solving for $\mathbf{K}_3$:
 \begin{align*}
-K_3 &= \lim_{s \to -2}(s + 2)
+\mathbf{K}_3 &= \lim_{s \to -2}(s + 2)
 \begin{bmatrix}
 \frac{1}{s + 1} & \frac{1}{(s + 1)^2} & 0 \\
 0 & \frac{1}{s + 1} & 0 \\
@@ -372,20 +352,29 @@ K_3 &= \lim_{s \to -2}(s + 2)
 0 & 0 & 1
 \end{bmatrix} \\
 \end{align*}
-Solving for $K_1$ and $K_2$:
+Solving for $\mathbf{K}_1$ and $\mathbf{K}_2$:
 \begin{align*}
 \begin{bmatrix}
 (s^2 + 3s + 2) & (s + 2)  & 0 \\
 0 & (s^2 + 3s + 2) & 0 \\
 0 & 0 & (s^2 + 2s + 1)
 \end{bmatrix}
-&= K_1(s + 1)(s + 2) + K_2(s + 2) + K_3(s + 1)^2 \\
-&= K_1(s^2 + 3s + 2) + K_2(s + 2) + K_3(s^2 + 2s + 1) \\
-&= (K_1 + K_3)s^2 + (3K_1 + K_2 + 2K_3)s + (2K_1 + 2K_2 + K_3)
+&=
+\mathbf{K}_1(s + 1)(s + 2) +
+\mathbf{K}_2(s + 2) +
+\mathbf{K}_3(s + 1)^2 \\
+&=
+\mathbf{K}_1(s^2 + 3s + 2) +
+\mathbf{K}_2(s + 2) +
+\mathbf{K}_3(s^2 + 2s + 1) \\
+&=
+(\mathbf{K}_1 + \mathbf{K}_3)s^2 +
+(3\mathbf{K}_1 + \mathbf{K}_2 + 2\mathbf{K}_3)s +
+(2\mathbf{K}_1 + 2\mathbf{K}_2 + \mathbf{K}_3)
 \end{align*}
 \begin{align*}
-K_1 + K_3 &= I \\
-K_1 &= I - K_3 \\
+\mathbf{K}_1 + \mathbf{K}_3 &= I \\
+\mathbf{K}_1 &= I - \mathbf{K}_3 \\
 &= 
 \begin{bmatrix} 
 1 & 0 & 0 \\
@@ -394,19 +383,19 @@ K_1 &= I - K_3 \\
 \end{bmatrix}
 \end{align*}
 \begin{align*}
-3K_1 + K_2 + 2K_3 &=
+3\mathbf{K}_1 + \mathbf{K}_2 + 2\mathbf{K}_3 &=
 \begin{bmatrix} 
 3 & 1 & 0 \\
 0 & 3 & 0 \\
 0 & 0 & 2
 \end{bmatrix} \\
-K_2 &=
+\mathbf{K}_2 &=
 \begin{bmatrix} 
 3 & 1 & 0 \\
 0 & 3 & 0 \\
 0 & 0 & 2
 \end{bmatrix}
-- 2K_3 - 3K_1 \\
+- 2\mathbf{K}_3 - 3\mathbf{K}_1 \\
 &= 
 \begin{bmatrix} 
 0 & 1 & 0 \\
@@ -417,11 +406,16 @@ K_2 &=
 
 Taking the inverse Laplace transform:
 \begin{align*}
-e^{At} &=
+e^{\mathbf{A}t} &=
 \Lagri{
-\frac{K_1}{s + 1} + \frac{K_2}{(s + 1)^2} + \frac{K_3}{s + 2}
+\frac{\mathbf{K}_1}{s + 1} +
+\frac{\mathbf{K}_2}{(s + 1)^2} +
+\frac{\mathbf{K}_3}{s + 2}
 } \\
-&= e^{-t}K_1 + te^{-t}K_2 + e^{-2t}K_3 \\
+&=
+e^{-t}\mathbf{K}_1 +
+te^{-t}\mathbf{K}_2 +
+e^{-2t}\mathbf{K}_3 \\
 &= 
 \begin{bmatrix} 
 e^{-t} & te^{-t} & 0 \\
@@ -493,11 +487,13 @@ s + 5 & 1 \\
 s + 5 & 1 \\
 -6 & s
 \end{bmatrix} \\
-&= \frac{K_1}{s + 2} + \frac{K_2}{s + 3}
+&=
+\frac{\mathbf{K}_1}{s + 2} +
+\frac{\mathbf{K}_2}{s + 3}
 \end{align*}
-Solving for $K_1$ and $K_2$:
+Solving for $\mathbf{K}_1$ and $\mathbf{K}_2$:
 \begin{align*}
-K_1 &= \lim_{s \to -2}
+\mathbf{K}_1 &= \lim_{s \to -2}
 \frac{1}{(s + 3)}
 \begin{bmatrix}
 s + 5 & 1 \\
@@ -511,7 +507,7 @@ s + 5 & 1 \\
 \end{align*}
 
 \begin{align*}
-K_2 &= \lim_{s \to -3}
+\mathbf{K}_2 &= \lim_{s \to -3}
 \frac{1}{(s + 2)}
 \begin{bmatrix}
 s + 5 & 1 \\
@@ -526,8 +522,13 @@ s + 5 & 1 \\
 
 Taking the inverse Laplace transform:
 \begin{align*}
-\mathbf{A}_d &= \Lagri{\frac{K_1}{s + 2} + \frac{K_2}{s + 3}}_{t = T} \\
-&= K_1e^{-2T} + K_2e^{-3T} \\
+\mathbf{A}_d &=
+\Lagri{
+\frac{\mathbf{K}_1}{s + 2} +
+\frac{\mathbf{K}_2}{s + 3}}_{t = T} \\
+&=
+\mathbf{K}_1e^{-2T} +
+\mathbf{K}_2e^{-3T} \\
 &=
 \begin{bmatrix}
 3e^{-2T} - 2e^{-3T} & e^{-2T} - e^{-3T} \\
@@ -778,7 +779,7 @@ Add your MATLAB code (m-file and Simulink block) in your report.
 #+begin_src matlab :session :exports none :eval never-export :results none
 simulink
 #+end_src
-First let's input all the given parameters:
+First let's input all the given parameters into MATLAB:
 #+begin_src matlab :session :exports both :results output code
 m_r = 0.095;  % kg
 r = 0.085;  % m

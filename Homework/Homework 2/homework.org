@@ -1,0 +1,277 @@
+#+TITLE: MECH 468 Homework 2
+#+AUTHOR: Jasper Chan - 37467164
+
+#+OPTIONS: toc:nil
+
+#+LATEX_HEADER: \definecolor{bg}{rgb}{0.95,0.95,0.95}
+#+LATEX_HEADER: \setminted{frame=single,bgcolor=bg,samepage=true}
+#+LATEX_HEADER: \setlength{\parindent}{0pt}
+#+LATEX_HEADER: \usepackage{float}
+#+LATEX_HEADER: \usepackage{svg}
+#+LATEX_HEADER: \usepackage{cancel}
+#+LATEX_HEADER: \usepackage{amssymb}
+#+LATEX_HEADER: \usepackage{mathtools, nccmath}
+#+LATEX_HEADER: \sisetup{per-mode=fraction}
+#+LATEX_HEADER: \newcommand{\Lwrap}[1]{\left\{#1\right\}}
+#+LATEX_HEADER: \newcommand{\Lagr}[1]{\mathcal{L}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Lagri}[1]{\mathcal{L}^{-1}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Ztrans}[1]{\mathcal{Z}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Ztransi}[1]{\mathcal{Z}^{-1}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\ZOH}[1]{\text{ZOH}\left(#1\right)}
+#+LATEX_HEADER: \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+#+LATEX_HEADER: \makeatletter \AtBeginEnvironment{minted}{\dontdofcolorbox} \def\dontdofcolorbox{\renewcommand\fcolorbox[4][]{##4}} \makeatother
+
+#+LATEX_HEADER: \renewcommand\arraystretch{1.2}
+
+#+begin_src ipython :session :results none :exports none
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+from IPython.display import set_matplotlib_formats
+%matplotlib inline
+set_matplotlib_formats('svg')
+#+end_src
+#+begin_src ipython :session :results none :exports none
+import IPython
+from tabulate import tabulate
+
+class OrgFormatter(IPython.core.formatters.BaseFormatter):
+    def __call__(self, obj):
+        if(isinstance(obj, str)):
+            return None
+        if(isinstance(obj, pd.core.indexes.base.Index)):
+            return None
+        try:
+            return tabulate(obj, headers='keys',
+                            tablefmt='orgtbl', showindex=False)
+        except:
+            return None
+
+ip = get_ipython()
+ip.display_formatter.formatters['text/org'] = OrgFormatter()
+#+end_src
+* Theoretical (hand-calculation) questions
+Let us consider the following continuous-time system
+\begin{align*}
+\dot{x}
+&=
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+x +
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
+u \\
+y
+&= 
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix}
+x
+\end{align*}
+** Q1
+Check if the system is BIBO stable.
+
+*Hint:* For a block-diagonal matrix
+$M
+=
+\begin{bmatrix}
+M_1 & 0 \\
+0 & M_2
+\end{bmatrix}$,
+$M^{-1}
+=
+\begin{bmatrix}
+M_1^{-1} & 0 \\
+0 & M_2^{-1}
+\end{bmatrix}$,
+*** Answer
+We are given a system of the form:
+\begin{align*}
+\dot{x}
+&=
+\underbrace{
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+}_{\mathbf{A}}
+x +
+\underbrace{
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
+}_{\mathbf{B}}
+u \\
+y
+&= 
+\underbrace{
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix}
+}_{\mathbf{C}}
+x
++
+\underbrace{
+\mathbf{0}
+}_{\mathbf{D}}
+u
+\end{align*}
+We can find the transfer function by computing:
+\begin{equation*}
+Y(s) =
+\left[
+\mathbf{C}
+\left(
+\underbrace{s\mathbf{I} - \mathbf{A}}_{\mathbf{A_s}}
+\right)^{-1}
+\mathbf{B} +
+\mathbf{D}
+\right]
+U(s)
+\end{equation*}
+$\mathbf{A_s}$ is then:
+\begin{align*}
+\mathbf{A_s}
+&=
+s\mathbf{I} - \mathbf{A} \\
+&=
+\begin{bmatrix}
+s & 0 & 0 \\
+0 & s & 0 \\
+0 & 0 & s
+\end{bmatrix}
+-
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+s & -1 & 0 \\
+1 & s + 2 & 0 \\
+0 & 0 & s
+\end{bmatrix}
+\end{align*}
+For easier calculation, we can partition $\mathbf{A_s}$ into a block-diagonal matrix:
+\begin{align*}
+\mathbf{A_s}
+&=
+\begin{bmatrix}
+\overbrace{
+\begin{bmatrix}
+s & -1 \\
+1 & s + 2
+\end{bmatrix}
+}^{\mathbf{A_{s1}}}
+& 
+\mathbf{0} \\
+\mathbf{0} &
+\underbrace{
+\begin{bmatrix}
+s
+\end{bmatrix}
+}_{\mathbf{A_{s2}}}
+\end{bmatrix}
+\end{align*}
+
+We can then find $\mathbf{A_s}^{-1}$ by:
+
+\begin{align*}
+\mathbf{A_{s1}}^{-1}
+&=
+\begin{bmatrix}
+s & -1 \\
+1 & s + 2
+\end{bmatrix}^{-1} \\
+&=
+\frac{1}{(s)(s + 2) - (-1)(1)}
+\begin{bmatrix}
+s + 2 & 1 \\
+-1 & s
+\end{bmatrix} \\
+&=
+\frac{1}{s^2 + 2s + 1}
+\begin{bmatrix}
+s + 2 & 1 \\
+-1 & s
+\end{bmatrix} \\
+&=
+\frac{1}{(s + 1)^2}
+\begin{bmatrix}
+s + 2 & 1 \\
+-1 & s
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+\frac{s + 2}{(s + 1)^2} & \frac{1}{(s + 1)^2} \\
+\frac{-1}{(s + 1)^2} & \frac{s}{(s + 1)^2}
+\end{bmatrix} \\
+\mathbf{A_{s2}}^{-1}
+&=
+\begin{bmatrix}
+s
+\end{bmatrix}^{-1} \\
+&=
+\begin{bmatrix}
+\frac{1}{s}
+\end{bmatrix}
+\end{align*}
+
+Plugging in $\mathbf{A_{s1}}^{-1}$ and $\mathbf{A_{s2}}^{-1}$:
+\begin{align*}
+\mathbf{A_s}^{-1}
+&=
+\begin{bmatrix}
+\mathbf{A_{s1}}^{-1} & \mathbf{0} \\
+\mathbf{0} & \mathbf{A_{s2}}^{-1}
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+\frac{s + 2}{(s + 1)^2} & \frac{1}{(s + 1)^2} & 0 \\
+\frac{-1}{(s + 1)^2} & \frac{s}{(s + 1)^2} & 0 \\
+0 & 0 & \frac{1}{s}
+\end{bmatrix}
+\end{align*}
+
+Computing $G(s)$:
+\begin{align*}
+G(s) = \frac{Y(s)}{U(s)}
+&=
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+\frac{s + 2}{(s + 1)^2} & \frac{1}{(s + 1)^2} & 0 \\
+\frac{-1}{(s + 1)^2} & \frac{s}{(s + 1)^2} & 0 \\
+0 & 0 & \frac{1}{s}
+\end{bmatrix}
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
++
+\mathbf{0} \\
+&=
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+\frac{1}{(s + 1)^2} \\
+\frac{s}{(s + 1)^2} \\
+0
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+\frac{s}{(s + 1)^2}
+\end{bmatrix} \\
+&=
+\frac{s}{(s + 1)^2}
+\end{align*}
+
+We can see that the system $G(s)$ has two identical poles at $s = -1$, which is in the open left hand imaginary plane, therefore the given system is BIBO stable.
+* MATLAB Question

@@ -158,7 +158,7 @@ s & -1 & 0 \\
 0 & 0 & s
 \end{bmatrix}
 \end{align*}
-For easier calculation, we can partition $\mathbf{A_s}$ into a block-diagonal matrix:
+For easier computation, we can partition $\mathbf{A_s}$ into a block-diagonal matrix:
 \begin{align*}
 \mathbf{A_s}
 &=
@@ -274,4 +274,77 @@ G(s) = \frac{Y(s)}{U(s)}
 \end{align*}
 
 We can see that the system $G(s)$ has two identical poles at $s = -1$, which is in the open left hand imaginary plane, therefore the given system is BIBO stable.
+** Q2
+Check if the system is asymptotically stable, marginally stable, or unstable.
+
+*Hint:* For a block-diagonal matrix
+$M
+=
+\begin{bmatrix}
+M_1 & 0 \\
+0 & M_2
+\end{bmatrix}$,
+the set of eigenvalues of $M$ consists of the set of eigenvalues of $M_1$ and the set of eigenvalues of $M_2$.
+*** Answer
+For easier computation, we can partition $\mathbf{A}$ into a block-diagonal matrix:
+\begin{align*}
+\mathbf{A}
+&=
+\begin{bmatrix}
+\overbrace{
+\begin{bmatrix}
+0 & 1 \\
+-1 & -2
+\end{bmatrix}
+}^{\mathbf{A_1}}
+& 
+\mathbf{0} \\
+\mathbf{0} &
+\underbrace{
+\begin{bmatrix}
+0
+\end{bmatrix}
+}_{\mathbf{A_2}}
+\end{bmatrix}
+\end{align*}
+We can then find the eigenvalues of $\mathbf{A_1}$ and $\mathbf{A_2}$.
+For a $2\times 2$ matrix of the form
+$\begin{bmatrix}
+a & b \\
+c & d
+\end{bmatrix}$, its eigenvalues can be found by the formula:
+\begin{equation*}
+\lambda =
+\frac{T \pm \sqrt{T^2 - 4D}}{2}
+\end{equation*}
+Where:
+\begin{align*}
+T &:= a + d \\
+D &:= ad - bc
+\end{align*}
+For $\mathbf{A_1}$, we get:
+\begin{align*}
+T_1 &= (0) + (-2) = -2 \\
+D_1 &= (0)(-2) - (1)(-1) = 1 \\
+\lambda_{1,i}
+&=
+\frac{T_1 \pm \sqrt{T_1^2 - 4D_1}}{2} \\
+&=
+\frac{(-2) \pm \sqrt{(-2)^2 - 4(1)}}{2} \\
+&= -1, -1
+\end{align*}
+The eigenvalues of $\mathbf{A_1}$ are all negative, and therefore the submatrix $\mathbf{A_1}$ is stable.
+
+The eigenvalue of $\mathbf{A_2}$ is just $\lambda_{2,1} = 0$
+Because the multiplicity of $\lambda_{2,1}$ is 1, we know that the rank condition holds, and therefore $\mathbf{A_2}$ is marginally stable.
+The overall system $\mathbf{A}$ is therefore marginally stable.
+** Q3
+Check the controllability.
+*** Answer
+** Q4
+Check the observability.
+*** Answer
+** Q5
+Obtain the Kalman decomposition
+*** Answer
 * MATLAB Question

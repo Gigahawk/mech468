@@ -18,6 +18,7 @@
 #+LATEX_HEADER: \newcommand{\Ztrans}[1]{\mathcal{Z}\Lwrap{#1}}
 #+LATEX_HEADER: \newcommand{\Ztransi}[1]{\mathcal{Z}^{-1}\Lwrap{#1}}
 #+LATEX_HEADER: \newcommand{\ZOH}[1]{\text{ZOH}\left(#1\right)}
+#+LATEX_HEADER: \newcommand{\rank}[1]{\text{rank}\left(#1\right)}
 #+LATEX_HEADER: \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 #+LATEX_HEADER: \makeatletter \AtBeginEnvironment{minted}{\dontdofcolorbox} \def\dontdofcolorbox{\renewcommand\fcolorbox[4][]{##4}} \makeatother
 
@@ -341,9 +342,170 @@ The overall system $\mathbf{A}$ is therefore marginally stable.
 ** Q3
 Check the controllability.
 *** Answer
+The controllability of a system with $n$ states is given by:
+\begin{align*}
+\mathfrak{c} &= \rank{\mathcal{C}} \\
+&= \rank{
+\begin{bmatrix}
+\mathbf{B} &
+\mathbf{AB} &
+\cdots & 
+\mathbf{A}^{n-1}\mathbf{B}
+\end{bmatrix}
+}
+\end{align*}
+For our system:
+\begin{align*}
+\mathfrak{c} 
+&= \rank{
+\begin{bmatrix}
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix} &
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix} &
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix}^2
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
+\end{bmatrix}
+} \\
+&= \rank{
+\begin{bmatrix}
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix} &
+\begin{bmatrix}
+1 \\ -2 \\ 0 
+\end{bmatrix} & 
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 \\ -2 \\ 0 
+\end{bmatrix}
+\end{bmatrix}
+} \\
+&= \rank{
+\begin{bmatrix}
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix} &
+\begin{bmatrix}
+1 \\ -2 \\ 0 
+\end{bmatrix} & 
+\begin{bmatrix}
+-2 \\ 3 \\ 0 
+\end{bmatrix}
+\end{bmatrix}
+} \\
+&= \rank{
+\begin{bmatrix}
+0 & 1 & -2 \\
+1 & -2 & 3 \\
+0 & 0 & 0
+\end{bmatrix}
+} \\
+&= 2 < 3
+\end{align*}
+The rank of $\mathcal{C}$ is less than $n$, therefore not all states of the system are controllable.
 ** Q4
 Check the observability.
 *** Answer
+The observability of a system with $n$ states is given by:
+\begin{align*}
+\mathfrak{o} &= \rank{\mathcal{O}} \\
+&= \rank{
+\begin{bmatrix}
+\mathbf{C} \\
+\mathbf{CA} \\
+\vdots \\ 
+\mathbf{CA}^{n-1}
+\end{bmatrix}
+}
+\end{align*}
+
+For our system:
+\begin{align*}
+\mathfrak{o}
+&= \rank{
+\begin{bmatrix}
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix} \\
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix} \\
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix}^2
+\end{bmatrix}
+} \\
+&= \rank{
+\begin{bmatrix}
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix} \\
+\begin{bmatrix}
+-1 & -2 & 0
+\end{bmatrix} \\
+\begin{bmatrix}
+-1 & -2 & 0
+\end{bmatrix}
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+\end{bmatrix}
+} \\
+&= \rank{
+\begin{bmatrix}
+\begin{bmatrix}
+0 & 1 & 0
+\end{bmatrix} \\
+\begin{bmatrix}
+-1 & -2 & 0
+\end{bmatrix} \\
+\begin{bmatrix}
+2 & 3 & 0
+\end{bmatrix}
+\end{bmatrix}
+} \\
+&= \rank{
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+2 & 3 & 0
+\end{bmatrix}
+} \\
+&= 2 < 3
+\end{align*}
+
+The rank of $\mathcal{O}$ is less than $n$, therefore not all states of the system are observable.
+
 ** Q5
 Obtain the Kalman decomposition
 *** Answer

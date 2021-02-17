@@ -610,7 +610,7 @@ We can then choose the complimentary matrix $\mathbf{T_o}$ to be:
 0 & 1
 \end{bmatrix}
 \end{align*}
-We can then find the components of $\mathbf{T}^{-1}$ for our Kalman decomposition:
+We can then find the components[fn:confusion] of $\mathbf{T}^{-1}$ for our Kalman decomposition:
 \begin{align*}
 \mathbf{T_{c\bar{o}}}
 &\basisof
@@ -632,7 +632,7 @@ V_{co}
 & \text{Im}(\mathcal{C}) = V_{c\bar{o}} \oplus V_{co}\\
 &=
 \begin{bmatrix}
-0 \\ 1 \\ 0
+1 \\ 1 \\ 0
 \end{bmatrix} \\
 \\
 \mathbf{T_{\bar{c}\bar{o}}}
@@ -653,6 +653,62 @@ V_{\bar{c}o}
 \end{bmatrix}
 \end{align*}
 
+[fn:confusion] Perhaps I am missing something, but my understanding is that $V_{co}$ just needs to be a vector space that when added with $V_{c\bar{o}}$ spans all of $\text{Im}(\mathcal{C})$.
+Intuitively:
+\begin{equation*}
+\text{Im}(\mathcal{C}) = 
+\mathspan{
+\begin{bmatrix}
+1 \\ 0 \\ 0
+\end{bmatrix}, 
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
+} = 
+\mathspan{
+\underbrace{
+\begin{bmatrix}
+1 \\ -1 \\ 0
+\end{bmatrix}}_{V_{c\bar{o}}}, 
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
+} = 
+\mathspan{
+\begin{bmatrix}
+1 \\ -1 \\ 0
+\end{bmatrix},
+\begin{bmatrix}
+1 \\ 0 \\ 0
+\end{bmatrix}
+} = 
+\mathspan{
+\begin{bmatrix}
+1 \\ -1 \\ 0
+\end{bmatrix},
+\begin{bmatrix}
+1 \\ 1 \\ 0
+\end{bmatrix}
+}
+\end{equation*}
+All of these sets of bases span the same vector space, however choosing $V_{co}$ to be
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
+or 
+\begin{bmatrix}
+1 \\ 0 \\ 0
+\end{bmatrix}
+seems to lead to the $TB$ matrix to have $B_{co} = 0$ or $B_{c\bar{o}} = 0$ respectively.
+It seems that only vectors where $x_1 \neq 0 \land x_2 \neq 0 \land V_{co} \notin V_{c\bar{o}}$ gives $B_{co} \neq 0 \land B_{c\bar{o}} \neq 0$.
+Clarification on this would be greatly appreciated.
+
+
+
+
+
+
+
 $\mathbf{T}^{-1}$ is then:
 \begin{align*}
 \mathbf{T}^{-1}
@@ -666,7 +722,7 @@ $\mathbf{T}^{-1}$ is then:
 &=
 \begin{bmatrix}
 \begin{bmatrix}
-0 \\ 1 \\ 0
+1 \\ 1 \\ 0
 \end{bmatrix} &
 \begin{bmatrix}
 1 \\ -1 \\ 0
@@ -677,26 +733,27 @@ $\mathbf{T}^{-1}$ is then:
 \end{bmatrix} \\
 &=
 \begin{bmatrix}
-0 & 1 & 0 \\
+1 & 1 & 0 \\
 1 & -1 & 0 \\
 0 & 0 & 1
 \end{bmatrix} \\
 \mathbf{T}
 &=
 \begin{bmatrix}
-0 & 1 & 0 \\
+1 & 1 & 0 \\
 1 & -1 & 0 \\
 0 & 0 & 1
 \end{bmatrix}^{-1} \\
 &=
 \begin{bmatrix}
-1 & 1 & 0 \\
-1 & 0 & 0 \\
+0.5 & 0.5 & 0 \\
+0.5 & -0.5 & 0 \\
 0 & 0 & 1
 \end{bmatrix}
 \end{align*}
 The Kalman decomposition is then:
 \begin{align*}
+\mathbf{z} &= \mathbf{T}x \\
 \dot{\mathbf{z}}
 &=
 \mathbf{TAT}^{-1} \mathbf{z} + \mathbf{TB}u \\
@@ -712,8 +769,8 @@ The Kalman decomposition is then:
 &=
 \left(
 \begin{bmatrix}
-0 & 1 & 0 \\
-1 & -1 & 0 \\
+0.5 & 0.5 & 0 \\
+0.5 & -0.5 & 0 \\
 0 & 0 & 1
 \end{bmatrix}
 \begin{bmatrix}
@@ -723,14 +780,14 @@ The Kalman decomposition is then:
 \end{bmatrix}
 \begin{bmatrix}
 1 & 1 & 0 \\
-1 & 0 & 0 \\
+1 & -1 & 0 \\
 0 & 0 & 1
 \end{bmatrix}
 \right)
 \left(
 \begin{bmatrix}
-1 & 1 & 0 \\
-1 & 0 & 0 \\
+0.5 & 0.5 & 0 \\
+0.5 & -0.5 & 0 \\
 0 & 0 & 1
 \end{bmatrix}
 x
@@ -738,8 +795,8 @@ x
 +
 \left(
 \begin{bmatrix}
-1 & 1 & 0 \\
-1 & 0 & 0 \\
+0.5 & 0.5 & 0 \\
+0.5 & -0.5 & 0 \\
 0 & 0 & 1
 \end{bmatrix}
 \begin{bmatrix}
@@ -754,15 +811,15 @@ y
 1 & 1 & 1
 \end{bmatrix}
 \begin{bmatrix}
-0 & 1 & 0 \\
+1 & 1 & 0 \\
 1 & -1 & 0 \\
 0 & 0 & 1
 \end{bmatrix}
 \right)
 \left(
 \begin{bmatrix}
-1 & 1 & 0 \\
-1 & 0 & 0 \\
+0.5 & 0.5 & 0 \\
+0.5 & -0.5 & 0 \\
 0 & 0 & 1
 \end{bmatrix}
 x
@@ -776,7 +833,7 @@ x
 &=
 \begin{bmatrix}
 -1 & 0 & 0 \\
-1 & -1 & 0 \\
+2 & -1 & 0 \\
 0 & 0 & 0
 \end{bmatrix}
 \begin{bmatrix}
@@ -786,13 +843,13 @@ z_{\bar{c}o} \\
 \end{bmatrix}
 +
 \begin{bmatrix}
-1 \\ 0 \\ 0
+0.5 \\ -0.5 \\ 0
 \end{bmatrix}
 u \\
 y
 &=
 \begin{bmatrix}
-1 & 0 & 1
+2 & 0 & 1
 \end{bmatrix}
 \begin{bmatrix}
 z_{co} \\
@@ -908,12 +965,11 @@ where
 \end{align*}
 
 *** Answer using minimal state vector
-If we want to avoid adding a dummy state variable, we can instead make the definition:
+If we want to avoid adding a dummy state variable, we can instead make the substitution:
 \begin{align*}
 \alpha &= \pi + d\alpha \\
 d\alpha &= \alpha - \pi \\
-\dot{d\alpha} = \dot{\alpha} \\
-\ddot{d\alpha} = \ddot{\alpha}
+\dot{d\alpha} &= \dot{\alpha}
 \end{align*}
 
 Our equations of motion then become:
@@ -1041,26 +1097,6 @@ B2 =
     1.0127
          0
     1.0010
-#+end_src
-
-#+begin_src matlab :session :exports both :results output code
-eig(A1)
-eig(A2)
-#+end_src
-
-#+RESULTS:
-#+begin_src matlab
-ans =
-         0
-  -20.8385
-   -4.0042
-   13.8450
-         0
-ans =
-         0
-  -20.8385
-   -4.0042
-   13.8450
 #+end_src
 
 With our state-space matrices prepared, we can open our Simulink model:
@@ -1198,7 +1234,7 @@ eig_stab =
   -3.0749 -15.1276i
 #+end_src
 
-The eigenvalues for the inverted pendulum matrices are unstable and identical for both $n=5$ and $n=4$ case, which matches the results of the plot.
+The eigenvalues for the inverted pendulum matrices are unstable and identical with a single positive eigenvalue for both the $n=5$ and $n=4$ case, which matches the results of the plot.
 The eigenvalues of the normal pendulum matrix is marginally stable, due to the single eigenvalue at $0$.
 
 

@@ -9,6 +9,7 @@
 #+LATEX_HEADER: \usepackage{float}
 #+LATEX_HEADER: \usepackage{svg}
 #+LATEX_HEADER: \usepackage{cancel}
+#+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{amssymb}
 #+LATEX_HEADER: \usepackage{mathtools, nccmath}
 #+LATEX_HEADER: \sisetup{per-mode=fraction}
@@ -19,6 +20,8 @@
 #+LATEX_HEADER: \newcommand{\Ztransi}[1]{\mathcal{Z}^{-1}\Lwrap{#1}}
 #+LATEX_HEADER: \newcommand{\ZOH}[1]{\text{ZOH}\left(#1\right)}
 #+LATEX_HEADER: \newcommand{\rank}[1]{\text{rank}\left(#1\right)}
+#+LATEX_HEADER: \newcommand{\mathspan}[1]{\text{span}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand\basisof{\stackrel{\smash{\scriptscriptstyle\mathrm{\text{basis of}}}}{=}}
 #+LATEX_HEADER: \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 #+LATEX_HEADER: \makeatletter \AtBeginEnvironment{minted}{\dontdofcolorbox} \def\dontdofcolorbox{\renewcommand\fcolorbox[4][]{##4}} \makeatother
 
@@ -69,7 +72,7 @@ u \\
 y
 &= 
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix}
 x
 \end{align*}
@@ -112,7 +115,7 @@ y
 &= 
 \underbrace{
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix}
 }_{\mathbf{C}}
 x
@@ -245,7 +248,7 @@ Computing $G(s)$:
 G(s) = \frac{Y(s)}{U(s)}
 &=
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix}
 \begin{bmatrix}
 \frac{s + 2}{(s + 1)^2} & \frac{1}{(s + 1)^2} & 0 \\
@@ -259,7 +262,7 @@ G(s) = \frac{Y(s)}{U(s)}
 \mathbf{0} \\
 &=
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix}
 \begin{bmatrix}
 \frac{1}{(s + 1)^2} \\
@@ -268,13 +271,13 @@ G(s) = \frac{Y(s)}{U(s)}
 \end{bmatrix} \\
 &=
 \begin{bmatrix}
-\frac{s}{(s + 1)^2}
+\frac{s + 1}{(s + 1)^2}
 \end{bmatrix} \\
 &=
-\frac{s}{(s + 1)^2}
+\frac{1}{s + 1}
 \end{align*}
 
-We can see that the system $G(s)$ has two identical poles at $s = -1$, which is in the open left hand imaginary plane, therefore the given system is BIBO stable.
+We can see that the system $G(s)$ has a pole at $s = -1$, which is in the open left hand imaginary plane, therefore the given system is BIBO stable.
 ** Q2
 Check if the system is asymptotically stable, marginally stable, or unstable.
 
@@ -443,10 +446,10 @@ For our system:
 &= \rank{
 \begin{bmatrix}
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix} \\
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix}
 \begin{bmatrix}
 0 & 1 & 0 \\
@@ -454,7 +457,7 @@ For our system:
 0 & 0 & 0
 \end{bmatrix} \\
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix}
 \begin{bmatrix}
 0 & 1 & 0 \\
@@ -466,13 +469,13 @@ For our system:
 &= \rank{
 \begin{bmatrix}
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix} \\
 \begin{bmatrix}
--1 & -2 & 0
+-1 & -1 & 0
 \end{bmatrix} \\
 \begin{bmatrix}
--1 & -2 & 0
+-1 & -1 & 0
 \end{bmatrix}
 \begin{bmatrix}
 0 & 1 & 0 \\
@@ -484,21 +487,21 @@ For our system:
 &= \rank{
 \begin{bmatrix}
 \begin{bmatrix}
-0 & 1 & 0
+1 & 1 & 1
 \end{bmatrix} \\
 \begin{bmatrix}
--1 & -2 & 0
+-1 & -1 & 0
 \end{bmatrix} \\
 \begin{bmatrix}
-2 & 3 & 0
+1 & 1 & 0
 \end{bmatrix}
 \end{bmatrix}
 } \\
 &= \rank{
 \begin{bmatrix}
-0 & 1 & 0 \\
--1 & -2 & 0 \\
-2 & 3 & 0
+1 & 1 & 1 \\
+-1 & -1 & 0 \\
+1 & 1 & 0
 \end{bmatrix}
 } \\
 &= 2 < 3
@@ -509,4 +512,694 @@ The rank of $\mathcal{O}$ is less than $n$, therefore not all states of the syst
 ** Q5
 Obtain the Kalman decomposition
 *** Answer
+First let's get the bases for the image space of $\mathcal{C}$ and the kernel space of $\mathcal{O}$.
+Because the third column of $\mathcal{C}$ is a linear combination of the first two columns, we can say:
+\begin{align*}
+\text{Im} (\mathcal{C})
+&=
+\mathspan{
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}, 
+\begin{bmatrix}
+1 \\ -2 \\ 0
+\end{bmatrix}
+}
+\end{align*}
+For simplicity, we can re-express the span using the unit vectors:
+\begin{align*}
+\text{Im} (\mathcal{C})
+&=
+\mathspan{
+\begin{bmatrix}
+1 \\ 0 \\ 0
+\end{bmatrix}, 
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
+} \\
+\mathbf{T_c}
+&=
+\begin{bmatrix}
+1 & 0 \\
+0 & 1 \\
+0 & 0
+\end{bmatrix}
+\end{align*}
+We can then choose the complimentary matrix $\mathbf{T_{\bar{c}}}$ to be:
+\begin{align*}
+\mathbf{T_{\bar{c}}}
+&=
+\begin{bmatrix}
+0 \\ 0 \\ 1
+\end{bmatrix}
+\end{align*}
+
+Finding the kernel space of $\mathcal{O}$:
+\begin{align*}
+\text{ker}(\mathcal{O})
+&=
+\Lwrap{
+\mathbf{x} \in \mathbb{R}^3
+:
+\mathcal{O}\mathbf{x} = \mathbf{0}
+} \\
+&=
+\Lwrap{
+\mathbf{x} \in \mathbb{R}^3
+:
+x_1
+\begin{bmatrix}
+1 \\ -1 \\ 1
+\end{bmatrix}
++
+x_2
+\begin{bmatrix}
+1 \\ -1 \\ 1
+\end{bmatrix}
++
+x_3
+\begin{bmatrix}
+1 \\ 0 \\ 0
+\end{bmatrix}
+= \mathbf{0}
+} 
+\end{align*}
+We can notice that $x_1 = x_2$, and that $x_3$ is independent, hence the kernel space of $\mathcal{O}$ is:
+\begin{align*}
+\text{ker}(\mathcal{O})
+&=
+\mathspan{
+\begin{bmatrix}
+1 \\ -1 \\ 0
+\end{bmatrix}
+} \\
+\mathbf{T_{\bar{o}}}
+&=
+\begin{bmatrix}
+1 \\ -1 \\ 0
+\end{bmatrix}
+\end{align*}
+We can then choose the complimentary matrix $\mathbf{T_o}$ to be:
+\begin{align*}
+\mathbf{T_o}
+&=
+\begin{bmatrix}
+0 & 0 \\
+1 & 0 \\
+0 & 1
+\end{bmatrix}
+\end{align*}
+We can then find the components of $\mathbf{T}^{-1}$ for our Kalman decomposition:
+\begin{align*}
+\mathbf{T_{c\bar{o}}}
+&\basisof
+V_{c\bar{o}}
+& V_{c\bar{o}} := \text{Im}(\mathcal{C}) \cap \text{ker}(\mathcal{O}) \\
+&\basisof \mathspan{
+\begin{bmatrix}
+1 \\ -1 \\ 0
+\end{bmatrix}
+} \\
+&=
+\begin{bmatrix}
+1 \\ -1 \\ 0
+\end{bmatrix} \\
+\\
+\mathbf{T_{co}}
+&\basisof
+V_{co}
+& \text{Im}(\mathcal{C}) = V_{c\bar{o}} \oplus V_{co}\\
+&=
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix} \\
+\\
+\mathbf{T_{\bar{c}\bar{o}}}
+&\basisof
+V_{\bar{c}\bar{o}} 
+& \text{ker}(\mathcal{O}) = V_{c\bar{o}} \oplus V_{\bar{c}\bar{o}} \\
+&\basisof \varnothing \\
+&\therefore \nexists
+\mathbf{T_{\bar{c}\bar{o}}} \\
+\\
+\mathbf{T_{\bar{c}o}}
+&\basisof
+V_{\bar{c}o}
+& \mathbb{R}^3 = V_{co} \oplus V_{c\bar{o}} \oplus V_{\bar{c}\bar{o}} \oplus V_{\bar{c}o} \\
+&=
+\begin{bmatrix}
+0 \\ 0 \\ 1
+\end{bmatrix}
+\end{align*}
+
+$\mathbf{T}^{-1}$ is then:
+\begin{align*}
+\mathbf{T}^{-1}
+&=
+\begin{bmatrix}
+\mathbf{T_{co}} &
+\mathbf{T_{c\bar{o}}} &
+\mathbf{T_{\bar{c}o}} &
+\mathbf{T_{\bar{c}\bar{o}}}
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix} &
+\begin{bmatrix}
+1 \\ -1 \\ 0
+\end{bmatrix} & 
+\begin{bmatrix}
+0 \\ 0 \\ 1
+\end{bmatrix}
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+0 & 1 & 0 \\
+1 & -1 & 0 \\
+0 & 0 & 1
+\end{bmatrix} \\
+\mathbf{T}
+&=
+\begin{bmatrix}
+0 & 1 & 0 \\
+1 & -1 & 0 \\
+0 & 0 & 1
+\end{bmatrix}^{-1} \\
+&=
+\begin{bmatrix}
+1 & 1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+\end{align*}
+The Kalman decomposition is then:
+\begin{align*}
+\dot{\mathbf{z}}
+&=
+\mathbf{TAT}^{-1} \mathbf{z} + \mathbf{TB}u \\
+\mathbf{y}
+&=
+\mathbf{CT}^{-1} \mathbf{z} + \mathbf{D}u \\
+\\
+\begin{bmatrix}
+\dot{z}_{co} \\
+\dot{z}_{c\bar{o}} \\
+\dot{z}_{\bar{c}o} \\
+\end{bmatrix}
+&=
+\left(
+\begin{bmatrix}
+0 & 1 & 0 \\
+1 & -1 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+0 & 1 & 0 \\
+-1 & -2 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 & 1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+\right)
+\left(
+\begin{bmatrix}
+1 & 1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+x
+\right)
++
+\left(
+\begin{bmatrix}
+1 & 1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+0 \\ 1 \\ 0
+\end{bmatrix}
+\right)
+u \\
+y
+&=
+\left(
+\begin{bmatrix}
+1 & 1 & 1
+\end{bmatrix}
+\begin{bmatrix}
+0 & 1 & 0 \\
+1 & -1 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+\right)
+\left(
+\begin{bmatrix}
+1 & 1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+x
+\right) \\
+\\
+\begin{bmatrix}
+\dot{z}_{co} \\
+\dot{z}_{c\bar{o}} \\
+\dot{z}_{\bar{c}o} \\
+\end{bmatrix}
+&=
+\begin{bmatrix}
+-1 & 0 & 0 \\
+1 & -1 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+z_{co} \\
+z_{c\bar{o}} \\
+z_{\bar{c}o} \\
+\end{bmatrix}
++
+\begin{bmatrix}
+1 \\ 0 \\ 0
+\end{bmatrix}
+u \\
+y
+&=
+\begin{bmatrix}
+1 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+z_{co} \\
+z_{c\bar{o}} \\
+z_{\bar{c}o} \\
+\end{bmatrix}
+\end{align*}
 * MATLAB Question
+Consider a rotary pendulum shown below.
+All the equations and parameter values were given in HW1.
+[[file:2_2.png]]
+
+In HW1, we derived the linearized model for the pendulum system, i.e., around
+\begin{align*}
+\theta &= 0 & \dot{\theta} &= 0 & \alpha &= 0  & \dot{\alpha} &= 0
+\end{align*}
+
+** Task 1
+By hand-calculation, derive the linearized model for the inverted pendulum system, i.e., around
+\begin{align*}
+\theta &= 0 & \dot{\theta} &= 0 & \alpha &= \pi  & \dot{\alpha} &= 0
+\end{align*}
+*Hint:* See HW1 for the derivation of the linearized model for the pendulum system, and think how to modify it.
+*** Answer using states from HW1
+From HW1, the non-linear equations of motion for the system is given as:
+\begin{align*}
+(J_r + J_p \sin^2 \alpha)\ddot{\theta} +
+m_p r \ell \cos\alpha \ddot{\alpha} +
+2J_p \sin\alpha \cos\alpha \dot{\theta} \dot{\alpha} -
+m_p r \ell \sin\alpha \dot{\alpha}^2
+&=
+\tau - b_r \dot{\theta} \\
+J_p \ddot{\alpha} +
+m_p r \ell \cos\alpha \ddot{\theta} -
+J_p \sin\alpha \cos\alpha \dot{\theta}^2 +
+m_p g \ell \sin{\alpha}
+&=
+-b_p \dot{\alpha}
+\end{align*}
+
+
+For the given operating point, we can make the approximations:
+\begin{align*}
+\sin \alpha &\approx \pi - \alpha \\
+\cos \alpha &\approx -1 \\
+\sin^2 \alpha &\approx 0 \\
+\dot{\alpha}^2 &\approx 0 \\
+\dot{\theta}^2 &\approx 0 \\
+\dot{\theta}\dot{\alpha} &\approx 0 
+\end{align*}
+
+The equations of motion can then be simplified to:
+\begin{align*}
+J_r \ddot{\theta} - m_p r \ell \ddot{\alpha}
+&= \tau - b_r \dot{\theta} \\
+-m_p r \ell \ddot{\theta} + J_p \ddot{\alpha}
+&= -b_p \dot{\alpha} - m_p g \ell (\pi - \alpha)
+\end{align*}
+
+From these two equations, we can derive:
+\begin{align*}
+\ddot{\theta} &= \frac{1}{J_t}
+\left\{
+J_p(\tau - b_r \dot{\theta}) -
+m_p r \ell(b_p \dot{\alpha} + m_p g \ell (\pi - \alpha))
+\right\} \\
+\ddot{\alpha} &= \frac{1}{J_t}
+\left\{
+-J_r(b_p \dot{\alpha} + m_p g \ell (\pi - \alpha)) +
+m_p r \ell (\tau - b_r \dot{\theta})
+\right\} \\
+\end{align*}
+where
+\begin{equation*}
+J_t := J_r J_p - (m_p r \ell)^2
+\end{equation*}
+
+Defining our main state variables as
+\begin{align*}
+x_1 &:= \theta & x_2 &:= \dot{\theta} &
+x_3 &:= \alpha & x_4 &:= \dot{\alpha}
+\end{align*}
+To account for the constant term, we also introduce $x_5 := \pi$, $\dot{x}_5 := 0$
+
+Defining the input and outputs as
+\begin{align*}
+u &:= \tau & y_1 &:= \theta & y_2 &:= \alpha
+\end{align*}
+we can get the state-space model as
+\begin{align*}
+\dot{\mathbf{x}} &= \mathbf{Ax} + \mathbf{B}u \\
+\mathbf{y} &= \mathbf{Cx}
+\end{align*}
+where
+\begin{align*}
+\mathbf{A} &:= 
+\begin{bmatrix}
+0 & 1 & 0 & 0 & 0\\
+0 & -J_p b_r/J_t & (m_p \ell)^2 r g/J_t & - m_p r \ell b_p/J_t & -(m_p \ell)^2 r g/J_t \\
+0 & 0 & 0 & 1 & 0 \\
+0 & -m_p r \ell b_r/J_t & J_r m_p g \ell/J_t & -J_r b_p/J_t & -J_r m_p g \ell/J_t \\
+0 & 0 & 0 & 0 & 0
+\end{bmatrix} \\
+\mathbf{B} &:= \frac{1}{J_t}
+\begin{bmatrix}
+0 \\ J_p \\ 0 \\ m_p r \ell \\ 0
+\end{bmatrix} \\
+\mathbf{C} &:= 
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0
+\end{bmatrix}
+\end{align*}
+
+*** Answer using minimal state vector
+If we want to avoid adding a dummy state variable, we can instead make the definition:
+\begin{align*}
+\alpha &= \pi + d\alpha \\
+d\alpha &= \alpha - \pi \\
+\dot{d\alpha} = \dot{\alpha} \\
+\ddot{d\alpha} = \ddot{\alpha}
+\end{align*}
+
+Our equations of motion then become:
+\begin{align*}
+\ddot{\theta} &= \frac{1}{J_t}
+\left\{
+J_p(\tau - b_r \dot{\theta}) -
+m_p r \ell(b_p \dot{\alpha} - m_p g \ell d\alpha)
+\right\} \\
+\ddot{\alpha} &= \frac{1}{J_t}
+\left\{
+-J_r(b_p \dot{\alpha} - m_p g \ell d\alpha) +
+m_p r \ell (\tau - b_r \dot{\theta})
+\right\} \\
+\end{align*}
+
+We can then define our state variables as
+\begin{align*}
+x_1 &:= \theta & x_2 &:= \dot{\theta} &
+x_3 &:= d\alpha & x_4 &:= \dot{\alpha}
+\end{align*}
+
+Our state space matrices then become:
+\begin{align*}
+\mathbf{A} &:= 
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & -J_p b_r/J_t & (m_p \ell)^2 r g/J_t & -m_p r \ell b_p/J_t \\ 
+0 & 0 & 0 & 1 \\
+0 & -m_p r \ell b_r/J_t & J_r m_p g \ell/J_t & -J_r b_p/J_t
+\end{bmatrix} \\
+\mathbf{B} &:= \frac{1}{J_t}
+\begin{bmatrix}
+0 \\ J_p \\ 0 \\ m_p r \ell
+\end{bmatrix} \\
+\mathbf{C} &:= 
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 
+\end{bmatrix}
+\end{align*}
+** Task 2
+Using Simulink and the linearized model, simulate for the case when all the initial states are zero except $\alpha(0) = \pi + 0.1 [\si{\radian}]$, and with no input.
+Plot the outputs $\theta(t)$ and $\alpha(t)$.
+*** Answer
+Defining our constants using the values provided in HW1:
+#+begin_src matlab :session :exports both :results output code
+m_r = 0.095;  % kg
+r = 0.085;  % m
+b_r = 0.001;  % Nms/rad
+m_p = 0.024;  % kg
+L_p = 0.129;  % m
+b_p = 0.00005;  % Nms/rad
+g = 9.81;  % m/s^2
+
+J_r = (1/3)*m_r*r^2;
+J_p = (1/3)*m_p*L_p^2;
+ell = L_p/2;
+J_t = J_r*J_p - (m_p*r*ell)^2;
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+#+end_src
+
+Defining our state space matrices:
+#+begin_src matlab :session :exports both :results output code
+% 5 state vector using x_3 = alpha
+A1 = [...
+  0, 1, 0, 0, 0;
+  0, -J_p*b_r/J_t, (m_p*ell)^2*r*g/J_t, -m_p*r*ell*b_p/J_t, -(m_p*ell)^2*r*g/J_t;
+  0, 0, 0, 1, 0;
+  0, -m_p*r*ell*b_r/J_t, J_r*m_p*g*ell/J_t, -J_r*b_p/J_t, -J_r*m_p*g*ell/J_t;
+  0, 0, 0, 0, 0]
+B1 = 1/J_t*[0; J_p; 0; m_p*r*ell; 0]
+C1 = [...
+    1 0 0 0 0;...
+    0 0 1 0 0];
+D1 = [0; 0];
+icd1 = [0; 0; pi + 0.1; 0; pi];
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+A1 =
+         0    1.0000         0         0         0
+         0  -10.1274  152.0057   -0.5005 -152.0057
+         0         0         0    1.0000         0
+         0  -10.0097  264.3080   -0.8702 -264.3080
+         0         0         0         0         0
+B1 =
+   1.0e+04 *
+         0
+    1.0127
+         0
+    1.0010
+         0
+#+end_src
+
+#+begin_src matlab :session :exports both :results output code
+% 4 state vector using x_3 = dalpha
+A2 = [...
+  0, 1, 0, 0;
+  0, -J_p*b_r/J_t, (m_p*ell)^2*r*g/J_t, -m_p*r*ell*b_p/J_t;
+  0, 0, 0, 1;
+  0, -m_p*r*ell*b_r/J_t, J_r*m_p*g*ell/J_t, -J_r*b_p/J_t]
+B2 = 1/J_t*[0; J_p; 0; m_p*r*ell]
+C2 = [...
+    1 0 0 0;...
+    0 0 1 0];
+D2 = [0; 0];
+icd2 = [0; 0; 0.1; 0];
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+A2 =
+         0    1.0000         0         0
+         0  -10.1274  152.0057   -0.5005
+         0         0         0    1.0000
+         0  -10.0097  264.3080   -0.8702
+B2 =
+   1.0e+04 *
+         0
+    1.0127
+         0
+    1.0010
+#+end_src
+
+#+begin_src matlab :session :exports both :results output code
+eig(A1)
+eig(A2)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+         0
+  -20.8385
+   -4.0042
+   13.8450
+         0
+ans =
+         0
+  -20.8385
+   -4.0042
+   13.8450
+#+end_src
+
+With our state-space matrices prepared, we can open our Simulink model:
+#+begin_src matlab :session :exports code :results none
+open_system('q2');
+print -dsvg -s 'q2_raw.svg';
+#+end_src
+#+begin_src shell :exports results :results file
+inkscape q2_raw.svg --export-text-to-path --export-plain-svg -o q2_simulink.svg
+printf 'q2_simulink.svg'
+#+end_src
+
+#+RESULTS:
+[[file:q2_simulink.svg]]
+
+Running the simulation:
+#+begin_src matlab :session :exports both :results output code
+A = A1; B = B1; C = C1; D = D1; icd = icd1;
+out = sim('q2', 3);
+t1 = out.simout.Time;
+theta1 = out.simout.Data(:, 1);
+alpha1 = out.simout.Data(:, 2);
+
+A = A2; B = B2; C = C2; D = D2; icd = icd2;
+out = sim('q2', 3);
+t2 = out.simout.Time;
+theta2 = out.simout.Data(:, 1);
+alpha2 = pi + out.simout.Data(:, 2);
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+#+end_src
+
+Plotting the data:
+#+begin_src matlab :session :exports both :results file
+f_name = 'q2_plot.svg'
+fig = figure('visible', 'off',...
+            'Position', [0 0 600 300]);
+plot(t1, theta1, 'c');
+hold on;
+plot(t1, alpha1, 'r');
+plot(t1, theta2, 'k:');
+plot(t1, alpha1, 'k--');
+hold off;
+xlim([0, 0.5]);  % Simulation diverges very quickly
+l = legend('\theta, n=5', '\alpha, n=5', '\theta, n=4', '\alpha, n=4');
+% Disable interpreter so that LaTeX can properly render it
+set(l, 'Interpreter', 'none');
+set(l, 'color', 'none', 'edgecolor', 'none');
+fig.Renderer = 'painters';
+xlabel('Time [s]')
+ylabel('Position [rad]')
+title('Rotary Pendulum Simulation')
+saveas(fig, f_name);
+ans = f_name
+#+end_src
+
+#+RESULTS:
+[[file:q2_plot.svg]]
+
+We can better see how fast the model diverges over a longer period of time by using a log scale axis:
+#+begin_src matlab :session :exports both :results file
+f_name = 'q2_plot2.svg'
+fig = figure('visible', 'off',...
+            'Position', [0 0 600 300]);
+semilogy(t1, theta1, 'c');
+hold on;
+semilogy(t1, alpha1, 'r');
+semilogy(t1, theta2, 'k:');
+semilogy(t1, alpha1, 'k--');
+hold off;
+l = legend('\theta, n=5', '\alpha, n=5', '\theta, n=4', '\alpha, n=4');
+% Disable interpreter so that LaTeX can properly render it
+set(l, 'Interpreter', 'none');
+set(l, 'color', 'none', 'edgecolor', 'none');
+set(l, 'location', 'northwest');
+fig.Renderer = 'painters';
+xlabel('Time [s]')
+ylabel('Position [rad]')
+title('Rotary Pendulum Simulation')
+saveas(fig, f_name);
+ans = f_name
+#+end_src
+
+#+RESULTS:
+[[file:q2_plot2.svg]]
+
+
+** Task 3
+For both (pendulum and inverted pendulum) linearized systems, compute the eigenvalues of $A\text{-matrices}$ and determine the internal stability.
+*** Answer
+Copying the $A$ matrix of the stable pendulum from HW1:
+#+begin_src matlab :session :exports both :results output code
+A_stab = [...
+    0,                 1,                   0,                 0;...
+    0,      -J_p*b_r/J_t, (m_p*ell)^2*r*g/J_t, m_p*r*ell*b_p/J_t;...
+    0,                 0,                   0,                 1;...
+    0, m_p*r*ell*b_r/J_t,  -J_r*m_p*g*ell/J_t,      -J_r*b_p/J_t]
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+A_stab =
+         0    1.0000         0         0
+         0  -10.1274  152.0057    0.5005
+         0         0         0    1.0000
+         0   10.0097 -264.3080   -0.8702
+#+end_src
+
+Finding the eigenvalues:
+#+begin_src matlab :session :exports both :results output code
+eig1 = eig(A1)  % inverted pendulum, n=5
+eig2 = eig(A2)  % inverted pendulum, n=4
+eig_stab = eig(A_stab)  % normal pendulum
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+eig1 =
+         0
+  -20.8385
+   -4.0042
+   13.8450
+         0
+eig2 =
+         0
+  -20.8385
+   -4.0042
+   13.8450
+eig_stab =
+   0.0000 + 0.0000i
+  -4.8479 + 0.0000i
+  -3.0749 +15.1276i
+  -3.0749 -15.1276i
+#+end_src
+
+The eigenvalues for the inverted pendulum matrices are unstable and identical for both $n=5$ and $n=4$ case, which matches the results of the plot.
+The eigenvalues of the normal pendulum matrix is marginally stable, due to the single eigenvalue at $0$.
+
+
+

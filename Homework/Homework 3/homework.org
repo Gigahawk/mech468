@@ -1,0 +1,1450 @@
+#+TITLE: MECH 468 Homework 3
+#+AUTHOR: Jasper Chan - 37467164
+
+#+OPTIONS: toc:nil
+
+#+LATEX_HEADER: \definecolor{bg}{rgb}{0.95,0.95,0.95}
+#+LATEX_HEADER: \setminted{frame=single,bgcolor=bg,samepage=true}
+#+LATEX_HEADER: \setlength{\parindent}{0pt}
+#+LATEX_HEADER: \usepackage{float}
+#+LATEX_HEADER: \usepackage{svg}
+#+LATEX_HEADER: \usepackage{cancel}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amssymb}
+#+LATEX_HEADER: \usepackage{mathtools, nccmath}
+#+LATEX_HEADER: \sisetup{per-mode=fraction}
+#+LATEX_HEADER: \newcommand{\Lwrap}[1]{\left\{#1\right\}}
+#+LATEX_HEADER: \newcommand{\Lagr}[1]{\mathcal{L}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Lagri}[1]{\mathcal{L}^{-1}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Ztrans}[1]{\mathcal{Z}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Ztransi}[1]{\mathcal{Z}^{-1}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\ZOH}[1]{\text{ZOH}\left(#1\right)}
+#+LATEX_HEADER: \newcommand{\rank}[1]{\text{rank}\left(#1\right)}
+#+LATEX_HEADER: \newcommand{\mathspan}[1]{\text{span}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\ident}{\mathbf{I}}
+#+LATEX_HEADER: \newcommand{\bfzero}{\mathbf{0}}
+#+LATEX_HEADER: \newcommand\basisof{\stackrel{\smash{\scriptscriptstyle\mathrm{\text{basis of}}}}{=}}
+#+LATEX_HEADER: \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+#+LATEX_HEADER: \makeatletter \AtBeginEnvironment{minted}{\dontdofcolorbox} \def\dontdofcolorbox{\renewcommand\fcolorbox[4][]{##4}} \makeatother
+
+#+LATEX_HEADER: \renewcommand\arraystretch{1.2}
+
+#+begin_src ipython :session :results none :exports none
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+from IPython.display import set_matplotlib_formats
+%matplotlib inline
+set_matplotlib_formats('svg')
+#+end_src
+#+begin_src ipython :session :results none :exports none
+import IPython
+from tabulate import tabulate
+
+class OrgFormatter(IPython.core.formatters.BaseFormatter):
+    def __call__(self, obj):
+        if(isinstance(obj, str)):
+            return None
+        if(isinstance(obj, pd.core.indexes.base.Index)):
+            return None
+        try:
+            return tabulate(obj, headers='keys',
+                            tablefmt='orgtbl', showindex=False)
+        except:
+            return None
+
+ip = get_ipython()
+ip.display_formatter.formatters['text/org'] = OrgFormatter()
+#+end_src
+* Theoretical (hand-calculation) questions
+** Q1
+<<sec:manual1>>
+Obtain controllable canonical form realization for the following transfer matrices *by hand-calculations*.
+*** 
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s^2 + s} &
+\frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+First we see that all transfer functions here are strictly proper, therefore $\mathbf{D} = \bfzero$.
+If we factor out the denominator of the first element, we can see that the least common denominator is:
+\begin{align*}
+G(s)
+&=
+\begin{bmatrix}
+\frac{1}{s(s + 1)} &
+\frac{1}{s^2}
+\end{bmatrix} \\
+\text{L.C.D.}
+&= s^2(s + 1)
+\end{align*}
+
+We can then express $G(s)$ as:
+\begin{align*}
+G(s)
+&=
+\frac{1}{s^2(s + 1)}
+\begin{bmatrix}
+s & s + 1
+\end{bmatrix} \\
+&=
+\frac{1}{s^2(s + 1)}
+\left(
+\begin{bmatrix}
+1 & 1
+\end{bmatrix}
+s
++
+\begin{bmatrix}
+0 & 1
+\end{bmatrix}
+\right) \\
+&=
+\frac{1}{s^3 + s^2 + 0s + 0}
+\left(
+\begin{bmatrix}
+0 & 0
+\end{bmatrix}
+s^2
++
+\begin{bmatrix}
+1 & 1
+\end{bmatrix}
+s
++
+\begin{bmatrix}
+0 & 1
+\end{bmatrix}
+\right) \\
+\end{align*}
+
+Because $G(s)$ has dimensions $q \times p = 1 \times 2$, and the L.C.D. has an order of $r = 3$, the $\mathbf{A}$ matrix will be of dimension $rp \times rp = 6 \times 6$.
+
+The controllable canonical form realization is then:
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+\bfzero_2 & \ident_2 & \bfzero_2 \\
+\bfzero_2 & \bfzero_2 & \ident_2 \\
+\bfzero_2 & \bfzero_2 & -\ident_2
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+\bfzero_2 \\ \bfzero_2 \\ \ident_2
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+0 & 1 & 1 & 1 & 0 & 0
+\end{bmatrix}
+\end{align*}
+
+Where $\ident_2$ is a $2 \times 2$ identity matrix, and $\bfzero_2$ is a $2 \times 2$ zero matrix.
+
+Checking our realization in MATLAB:
+#+begin_src matlab :session :results output code :exports both
+z2 = zeros(2);
+I2 = eye(2);
+A = [...
+    z2 I2 z2;
+    z2 z2 I2;
+    z2 z2 -I2];
+B = [z2; z2; I2];
+C = [0 1 1 1 0 0];
+minreal(tf(ss(A, B, C, 0)))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+ 
+  From input 1 to output:
+     1
+  -------
+  s^2 + s
+ 
+  From input 2 to output:
+   1
+  ---
+  s^2
+ 
+Continuous-time transfer function.
+#+end_src
+
+*** 
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s^2 + s} \\
+\frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+This is a transpose of the previous question, so we can quickly reexpress $G(s)$ as:
+\begin{align*}
+G(s)
+&=
+\frac{1}{s^3 + s^2 + 0s + 0}
+\left(
+\begin{bmatrix}
+0 \\ 0
+\end{bmatrix}
+s^2
++
+\begin{bmatrix}
+1 \\ 1
+\end{bmatrix}
+s
++
+\begin{bmatrix}
+0 \\ 1
+\end{bmatrix}
+\right) \\
+\end{align*}
+
+Because $G(s)$ has dimensions $q \times p = 2 \times 1$, and the L.C.D. has an order of $r = 3$, the $\mathbf{A}$ matrix will be of dimension $rp \times rp = 3 \times 3$.
+
+The controllable canonical form realization is then:
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+0 & 0 & -1
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+0 \\ 0 \\ 1
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+0 & 1 & 0 \\
+1 & 1 & 0
+\end{bmatrix}
+\end{align*}
+
+Checking our realization in MATLAB:
+#+begin_src matlab :session :results output code :exports both
+A = [...
+    0 1 0;
+    0 0 1;
+    0 0 -1];
+B = [0; 0; 1];
+C = [...
+    0 1 0;
+    1 1 0];
+minreal(tf(ss(A, B, C, 0)))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+ 
+  From input to output...
+          1
+   1:  -------
+       s^2 + s
+ 
+        1
+   2:  ---
+       s^2
+ 
+Continuous-time transfer function.
+#+end_src
+
+
+
+*** 
+<<sec:manual13>>
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s + 1} & \frac{1}{s(s + 1)} \\
+\frac{1}{s(s + 1)} & \frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+First we see that all transfer functions here are strictly proper, therefore $\mathbf{D} = \mathbf{0}$.
+
+This transfer matrix also happens to have the same L.C.D. as the previous questions, hence we can reexpress $G(s)$ as:
+\begin{align*}
+G(s)
+&=
+\frac{1}{s^2(s + 1)}
+\begin{bmatrix}
+s^2 & s \\
+s & s + 1
+\end{bmatrix}
+\\
+&=
+\frac{1}{s^3 + s^2 + 0s + 0}
+\left(
+\begin{bmatrix}
+1 & 0 \\
+0 & 0
+\end{bmatrix}
+s^2
++
+\begin{bmatrix}
+0 & 1 \\
+1 & 1
+\end{bmatrix}
+s
++
+\begin{bmatrix}
+0 & 0 \\
+0 & 1
+\end{bmatrix}
+\right)
+\end{align*}
+
+Because $G(s)$ has dimensions $q \times p = 2 \times 2$, and the L.C.D. has an order of $r = 3$, the $\mathbf{A}$ matrix will be of dimension $rp \times rp = 6 \times 6$.
+
+The controllable canonical form realization is then:
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+\bfzero_2 & \ident_2 & \bfzero_2 \\
+\bfzero_2 & \bfzero_2 & \ident_2 \\
+\bfzero_2 & \bfzero_2 & -\ident_2
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+\bfzero_2 \\ \bfzero_2 \\ \ident_2
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+0 & 0 & 0 & 1 & 1 & 0 \\
+0 & 1 & 1 & 1 & 0 & 0
+\end{bmatrix}
+\end{align*}
+
+Where $\ident_2$ is a $2 \times 2$ identity matrix, and $\bfzero_2$ is a $2 \times 2$ zero matrix.
+
+Checking our realization in MATLAB:
+#+begin_src matlab :session :results output code :exports both
+A = [...
+    z2 I2 z2;
+    z2 z2 I2;
+    z2 z2 -I2];
+B = [z2; z2; I2];
+C = [...
+    0 0 0 1 1 0;
+    0 1 1 1 0 0];
+minreal(tf(ss(A, B, C, 0)))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+ 
+  From input 1 to output...
+         1
+   1:  -----
+       s + 1
+ 
+          1
+   2:  -------
+       s^2 + s
+ 
+  From input 2 to output...
+          1
+   1:  -------
+       s^2 + s
+ 
+        1
+   2:  ---
+       s^2
+ 
+Continuous-time transfer function.
+#+end_src
+
+** Q2
+Obtain observable canonical form realization for the transfer matrices above *by hand calculations*.
+*** 
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s^2 + s} &
+\frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+Using the reexpression from Section [[sec:manual1]]:
+\begin{align*}
+G(s)
+&=
+\frac{1}{s^3 + s^2 + 0s + 0}
+\left(
+\begin{bmatrix}
+0 & 0
+\end{bmatrix}
+s^2
++
+\begin{bmatrix}
+1 & 1
+\end{bmatrix}
+s
++
+\begin{bmatrix}
+0 & 1
+\end{bmatrix}
+\right) \\
+\end{align*}
+
+Because $G(s)$ has dimensions $q \times p = 1 \times 2$, and the L.C.D. has an order of $r = 3$, the $\mathbf{A}$ matrix will be of dimension $rq \times rq = 3 \times 3$.
+
+The observable canonical form realization is then:
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+0 & 0 & 0 \\
+1 & 0 & 0 \\
+0 & 1 & -1
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+0 & 1 \\
+1 & 1 \\
+0 & 0
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+0 & 0 & 1
+\end{bmatrix}
+\end{align*}
+
+Checking our realization in MATLAB:
+#+begin_src matlab :session :results output code :exports both
+A = [...
+    0 0 0;
+    1 0 0;
+    0 1 -1];
+B = [...
+    0 1;
+    1 1;
+    0 0];
+C = [0 0 1];
+minreal(tf(ss(A, B, C, 0)))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+ 
+  From input 1 to output:
+     1
+  -------
+  s^2 + s
+ 
+  From input 2 to output:
+   1
+  ---
+  s^2
+ 
+Continuous-time transfer function.
+#+end_src
+
+*** 
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s^2 + s} \\
+\frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+Using the reexpression from Section [[sec:manual1]]:
+\begin{align*}
+G(s)
+&=
+\frac{1}{s^3 + s^2 + 0s + 0}
+\left(
+\begin{bmatrix}
+0 \\ 0
+\end{bmatrix}
+s^2
++
+\begin{bmatrix}
+1 \\ 1
+\end{bmatrix}
+s
++
+\begin{bmatrix}
+0 \\ 1
+\end{bmatrix}
+\right) \\
+\end{align*}
+
+Because $G(s)$ has dimensions $q \times p = 2 \times 1$, and the L.C.D. has an order of $r = 3$, the $\mathbf{A}$ matrix will be of dimension $rq \times rq = 6 \times 6$.
+
+The observable canonical form realization is then:
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+\bfzero_2 & \bfzero_2 & \bfzero_2 \\
+\ident_2 & \bfzero_2 & \bfzero_2 \\
+\bfzero_2 & \ident_2 & -\ident_2 
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+0 \\ 1 \\ 1 \\ 1 \\ 0 \\ 0
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+\bfzero_2 & \bfzero_2 & \ident_2
+\end{bmatrix}
+\end{align*}
+
+Where $\ident_2$ is a $2 \times 2$ identity matrix, and $\bfzero_2$ is a $2 \times 2$ zero matrix.
+
+Checking our realization in MATLAB:
+#+begin_src matlab :session :results output code :exports both
+A = [...
+    z2 z2 z2;
+    I2 z2 z2;
+    z2 I2 -I2];
+B = [0; 1; 1; 1; 0; 0];
+C = [z2 z2 I2];
+minreal(tf(ss(A, B, C, 0)))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+ 
+  From input to output...
+          1
+   1:  -------
+       s^2 + s
+ 
+        1
+   2:  ---
+       s^2
+ 
+Continuous-time transfer function.
+#+end_src
+
+*** 
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s + 1} & \frac{1}{s(s + 1)} \\
+\frac{1}{s(s + 1)} & \frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+Using the reexpression from Section [[sec:manual1]]:
+\begin{align*}
+G(s)
+&=
+\frac{1}{s^3 + s^2 + 0s + 0}
+\left(
+\begin{bmatrix}
+1 & 0 \\
+0 & 0
+\end{bmatrix}
+s^2
++
+\begin{bmatrix}
+0 & 1 \\
+1 & 1
+\end{bmatrix}
+s
++
+\begin{bmatrix}
+0 & 0 \\
+0 & 1
+\end{bmatrix}
+\right)
+\end{align*}
+
+Because $G(s)$ has dimensions $q \times p = 2 \times 2$, and the L.C.D. has an order of $r = 3$, the $\mathbf{A}$ matrix will be of dimension $rp \times rp = 6 \times 6$.
+
+The observable canonical form realization is then:
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+\bfzero_2 & \bfzero_2 & \bfzero_2 \\
+\ident_2 & \bfzero_2 & \bfzero_2 \\
+\bfzero_2 & \ident_2 & -\ident_2 
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+0 & 0 \\
+0 & 1 \\
+0 & 1 \\
+1 & 1 \\
+1 & 0 \\
+0 & 0
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+\bfzero_2 & \bfzero_2 & \ident_2
+\end{bmatrix}
+\end{align*}
+
+Where $\ident_2$ is a $2 \times 2$ identity matrix, and $\bfzero_2$ is a $2 \times 2$ zero matrix.
+
+Checking our realization in MATLAB:
+#+begin_src matlab :session :results output code :exports both
+A = [...
+    z2 z2 z2;
+    I2 z2 z2;
+    z2 I2 -I2];
+B = [...
+    0 0;
+    0 1;
+    0 1;
+    1 1;
+    1 0;
+    0 0];
+C = [z2 z2 I2];
+minreal(tf(ss(A, B, C, 0)))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+ 
+  From input 1 to output...
+         1
+   1:  -----
+       s + 1
+ 
+          1
+   2:  -------
+       s^2 + s
+ 
+  From input 2 to output...
+          1
+   1:  -------
+       s^2 + s
+ 
+        1
+   2:  ---
+       s^2
+ 
+Continuous-time transfer function.
+#+end_src
+
+** Q3
+Obtain minimal realization for the transfer matrices above *by hand calculations*
+
+In finding the minimal realization of Section [[sec:manual13]], after obtaining a non-minimal realization *by hand-calculation*, you *can use MATLAB* to compute
+Im$(\mathcal{C})$ or
+ker$(\mathcal{O})$, a coordinate transformation matrix
+$\mathbf{T}^{-1}$, and
+$\mathbf{T}$,
+$\mathbf{TAT}^{-1}$,
+$\mathbf{TB}$, and
+$\mathbf{CT}^{-1}$.
+Do NOT use MATLAB command ~minreal.m~.
+*** 
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s^2 + s} &
+\frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+$G(s)$ is a row vector, hence the observable canonical form is already minimal.
+
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+0 & 0 & 0 \\
+1 & 0 & 0 \\
+0 & 1 & -1
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+0 & 1 \\
+1 & 1 \\
+0 & 0
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+0 & 0 & 1
+\end{bmatrix}
+\end{align*}
+
+*** 
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s^2 + s} \\
+\frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+$G(s)$ is a column vector, hence the controllable canonical form is already minimal.
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+0 & 0 & -1
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+0 \\ 0 \\ 1
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+0 & 1 & 0 \\
+1 & 1 & 0
+\end{bmatrix}
+\end{align*}
+
+*** 
+\begin{equation*}
+G(s)=
+\begin{bmatrix}
+\frac{1}{s + 1} & \frac{1}{s(s + 1)} \\
+\frac{1}{s(s + 1)} & \frac{1}{s^2}
+\end{bmatrix}
+\end{equation*}
+
+*Answer*
+
+Starting with the controllable canonical form of $G(s)$
+\begin{align*}
+\mathbf{A} &=
+\begin{bmatrix}
+\bfzero_2 & \ident_2 & \bfzero_2 \\
+\bfzero_2 & \bfzero_2 & \ident_2 \\
+\bfzero_2 & \bfzero_2 & -\ident_2
+\end{bmatrix}
+&
+\mathbf{B} &=
+\begin{bmatrix}
+\bfzero_2 \\ \bfzero_2 \\ \ident_2
+\end{bmatrix}
+\\
+\mathbf{C} &=
+\begin{bmatrix}
+0 & 0 & 0 & 1 & 1 & 0 \\
+0 & 1 & 1 & 1 & 0 & 0
+\end{bmatrix}
+\end{align*}
+
+
+First let's input our matrices into MATLAB:
+#+begin_src matlab :session :results output code :exports both
+
+A = [...
+    z2 I2 z2;
+    z2 z2 I2;
+    z2 z2 -I2];
+B = [z2; z2; I2];
+C = [...
+    0 0 0 1 1 0;
+    0 1 1 1 0 0];
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+#+end_src
+
+Computing our controllability matrix:
+#+begin_src matlab :session :results output code :exports both
+% We could also use ctrb()
+[n, ~] = size(A);
+mC = [B];
+for i = 1:(n - 1)
+    mC = [mC A^i*B];
+end
+mC
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+mC =
+  Columns 1 through 10
+     0     0     0     0     1     0    -1     0     1     0
+     0     0     0     0     0     1     0    -1     0     1
+     0     0     1     0    -1     0     1     0    -1     0
+     0     0     0     1     0    -1     0     1     0    -1
+     1     0    -1     0     1     0    -1     0     1     0
+     0     1     0    -1     0     1     0    -1     0     1
+  Columns 11 through 12
+    -1     0
+     0    -1
+     1     0
+     0     1
+    -1     0
+     0    -1
+#+end_src
+
+Computing our observability matrix:
+#+begin_src matlab :session :results output code :exports both
+% We could also use obsv()
+mO = [C];
+for i = 1:(n - 1)
+    mO = [mO; C*A^i];
+end
+mO
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+mO =
+     0     0     0     1     1     0
+     0     1     1     1     0     0
+     0     0     0     0    -1     1
+     0     0     0     1     1     1
+     0     0     0     0     1    -1
+     0     0     0     0    -1     0
+     0     0     0     0    -1     1
+     0     0     0     0     1     0
+     0     0     0     0     1    -1
+     0     0     0     0    -1     0
+     0     0     0     0    -1     1
+     0     0     0     0     1     0
+#+end_src
+
+We can sanity check by verifying that this representation is controllable:
+#+begin_src matlab :session :results output code :exports both
+rank(mC)
+rank(mC) == n
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+     6
+ans =
+  logical
+   1
+#+end_src
+
+We can also verify that this is not a minimal realization by checking that this representation is not observable:
+#+begin_src matlab :session :results output code :exports both
+rank(mO)
+rank(mO) == n
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+     4
+ans =
+  logical
+   0
+#+end_src
+
+Now we can find Im$(\mathcal{C})$ and ker$(\mathcal{O})$:
+#+begin_src matlab :session :results output code :exports both
+ImC = colspace(sym(mC))
+kerO = null(sym(mO))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ImC =
+ 
+[1, 0, 0, 0, 0, 0]
+[0, 1, 0, 0, 0, 0]
+[0, 0, 1, 0, 0, 0]
+[0, 0, 0, 1, 0, 0]
+[0, 0, 0, 0, 1, 0]
+[0, 0, 0, 0, 0, 1]
+ 
+ 
+kerO =
+ 
+[1,  0]
+[0, -1]
+[0,  1]
+[0,  0]
+[0,  0]
+[0,  0]
+#+end_src
+
+We can then find $\mathbf{T_{c\bar{o}}} = \text{span}\left\{V_{c\bar{o}} := \text{Im}(\mathcal{C}) \cap \text{ker}(\mathcal{O})\right\}$:[fn:fullrank]
+#+begin_src matlab :session :results output code :exports both
+T_c_obar = null([null(ImC.').'; null(kerO.').'])
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+T_c_obar =
+ 
+[1,  0]
+[0, -1]
+[0,  1]
+[0,  0]
+[0,  0]
+[0,  0]
+#+end_src
+
+$\mathbf{T_{co}}$ is then:
+#+begin_src matlab :session :results output code :exports both
+T_co = sym([...
+    0 0 0 0;
+    1 0 0 0;
+    0 0 0 0;
+    0 1 0 0;
+    0 0 1 0;
+    0 0 0 1]);
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+#+end_src
+
+We can sanity check by making sure that:
+\begin{equation*}
+\text{Im}(\mathcal{C}) =
+\text{Im}
+\left(
+\begin{bmatrix}
+\mathbf{T_{co}} & \mathbf{T_{c\bar{o}}}
+\end{bmatrix}
+\right)
+\end{equation*}
+#+begin_src matlab :session :results output code :exports both
+colspace([T_co T_c_obar])
+isequal(ImC, colspace([T_co T_c_obar]))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+ 
+[1, 0, 0, 0, 0, 0]
+[0, 1, 0, 0, 0, 0]
+[0, 0, 1, 0, 0, 0]
+[0, 0, 0, 1, 0, 0]
+[0, 0, 0, 0, 1, 0]
+[0, 0, 0, 0, 0, 1]
+ 
+ans =
+  logical
+   1
+#+end_src
+
+Because we started with a controllable representation, intuitively there are no $\mathbf{T_{\bar{c}o}}$ and $\mathbf{T_{\bar{c}\bar{o}}}$ matrices.
+$\mathbf{T}^{-1}$ and $\mathbf{T}$ is then:
+#+begin_src matlab :session :results output code :exports both
+Tinv = double([T_co T_c_obar])
+T = inv(Tinv)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+Tinv =
+     0     0     0     0     1     0
+     1     0     0     0     0    -1
+     0     0     0     0     0     1
+     0     1     0     0     0     0
+     0     0     1     0     0     0
+     0     0     0     1     0     0
+T =
+     0     1     1     0     0     0
+     0     0     0     1     0     0
+     0     0     0     0     1     0
+     0     0     0     0     0     1
+     1     0     0     0     0     0
+     0     0     1     0     0     0
+#+end_src
+
+Finding our coordinate transformed matrices:
+#+begin_src matlab :session :results output code :exports both
+TATinv = T*A*Tinv
+TB = T*B
+CTinv = C*Tinv
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+TATinv =
+     0     1     1     0     0     0
+     0     0     0     1     0     0
+     0     0    -1     0     0     0
+     0     0     0    -1     0     0
+     0     0     0     0     0     1
+     0     0     1     0     0     0
+TB =
+     0     0
+     0     0
+     1     0
+     0     1
+     0     0
+     0     0
+CTinv =
+     0     1     1     0     0     0
+     1     1     0     0     0     0
+#+end_src
+
+The minimal realization is then found by taking the top left section of these matrices:
+#+begin_src matlab :session :results output code :exports both
+[~, min_n] = size(T_co)
+A_co = TATinv(1:min_n, 1:min_n)
+B_co = TB(1:min_n, :)
+C_co = CTinv(:, 1:min_n)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+min_n =
+     4
+A_co =
+     0     1     1     0
+     0     0     0     1
+     0     0    -1     0
+     0     0     0    -1
+B_co =
+     0     0
+     0     0
+     1     0
+     0     1
+C_co =
+     0     1     1     0
+     1     1     0     0
+#+end_src
+#+begin_src matlab :session :results output code :exports both
+minreal(tf(ss(A_co, B_co, C_co, zeros(2))))
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+ans =
+ 
+  From input 1 to output...
+         1
+   1:  -----
+       s + 1
+ 
+          1
+   2:  -------
+       s^2 + s
+ 
+  From input 2 to output...
+          1
+   1:  -------
+       s^2 + s
+ 
+        1
+   2:  ---
+       s^2
+ 
+Continuous-time transfer function.
+#+end_src
+
+
+
+
+
+
+
+[fn:fullrank] This answer should be fairly obvious, since Im$(\mathcal{C})$ is full rank, the intersection of it with ker$(\mathcal{O})$ is just ker$(\mathcal{O})$
+
+
+
+
+
+* MATLAB Question
+In HW1 and HW2, you got state-space models for the pendulum system and the inverted pendulum system, respectively.
+For each model, check the minimality of the state-space models.
+** HW1
+The state space model is given as:
+\begin{align*}
+\mathbf{A} &:= 
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & -J_p b_r/J_t & (m_p \ell)^2 r g/J_t & m_p r \ell b_p/J_t \\
+0 & 0 & 0 & 1 \\
+0 & m_p r \ell b_r/J_t & -J_r m_p g \ell/J_t & -J_r b_p/J_t
+\end{bmatrix} \\
+\mathbf{B} &:= \frac{1}{J_t}
+\begin{bmatrix}
+0 \\ J_p \\ 0 \\ -m_p r \ell
+\end{bmatrix} \\
+\mathbf{C} &:= 
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0
+\end{bmatrix}
+\end{align*}
+
+The parameter values are given in the table below.
+\begin{align*}
+J_r &:= \frac{1}{3} m_r r^2 &
+J_p &:= \frac{1}{3} m_p L_p^2 &
+\ell &:= \frac{L_p}{2}
+\end{align*}
+
+| Notation | Meaning                      | Value and unit                                |
+|----------+------------------------------+-----------------------------------------------|
+| $m_r$    | rotary arm mass              | \SI{0.095}{\kilo\gram}                        |
+| $r$      | rotary arm length            | \SI{0.085}{\meter}                            |
+| $b_r$    | viscous friction coefficient | \SI{0.001}{\newton\meter\second\per\radian}   |
+| $m_p$    | pendulum mass                | \SI{0.024}{\kilo\gram}                        |
+| $L_p$    | pendulum length              | \SI{0.129}{\meter}                            |
+| $b_p$    | viscous friction coefficient | \SI{0.00005}{\newton\meter\second\per\radian} |
+| $g$      | gravitational acceleration   | \SI{9.81}{\meter\per\second^2}                |
+
+*** Answer
+First let's input all the given parameters into MATLAB:
+#+begin_src matlab :session :exports both :results output code
+m_r = 0.095;  % kg
+r = 0.085;  % m
+b_r = 0.001;  % Nms/rad
+m_p = 0.024;  % kg
+L_p = 0.129;  % m
+b_p = 0.00005;  % Nms/rad
+g = 9.81;  % m/s^2
+
+J_r = (1/3)*m_r*r^2
+J_p = (1/3)*m_p*L_p^2
+ell = L_p/2
+J_t = J_r*J_p - (m_p*r*ell)^2
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+J_r =
+   2.2879e-04
+J_p =
+   1.3313e-04
+ell =
+    0.0645
+J_t =
+   1.3145e-08
+#+end_src
+
+Next let's define our state-space equation matrices:
+#+begin_src matlab :session :exports both :results output code
+A = [...
+    0,                 1,                   0,                 0;...
+    0,      -J_p*b_r/J_t, (m_p*ell)^2*r*g/J_t, m_p*r*ell*b_p/J_t;...
+    0,                 0,                   0,                 1;...
+    0, m_p*r*ell*b_r/J_t,  -J_r*m_p*g*ell/J_t,      -J_r*b_p/J_t]
+B = 1/J_t*[0; J_p; 0; -m_p*r*ell]
+C = [...
+    1 0 0 0;...
+    0 0 1 0];
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+A =
+         0    1.0000         0         0
+         0  -10.1274  152.0057    0.5005
+         0         0         0    1.0000
+         0   10.0097 -264.3080   -0.8702
+B =
+   1.0e+04 *
+         0
+    1.0127
+         0
+   -1.0010
+#+end_src
+
+Constructing the controllability matrix and checking the controllability:
+#+begin_src matlab :session :exports both :results output code
+Co = ctrb(A, B)
+controllable = length(A) == rank(Co)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+Co =
+   1.0e+07 *
+         0    0.0010   -0.0108   -0.0377
+    0.0010   -0.0108   -0.0377    2.1288
+         0   -0.0010    0.0110    0.1473
+   -0.0010    0.0110    0.1473   -3.4151
+controllable =
+  logical
+   1
+#+end_src
+
+Constructing the observability matrix and checking the observability:
+#+begin_src matlab :session :exports both :results output code
+Ob = obsv(A, C)
+observable = length(A) == rank(Ob)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+Ob =
+   1.0e+03 *
+    0.0010         0         0         0
+         0         0    0.0010         0
+         0    0.0010         0         0
+         0         0         0    0.0010
+         0   -0.0101    0.1520    0.0005
+         0    0.0100   -0.2643   -0.0009
+         0    0.1076   -1.6717    0.1465
+         0   -0.1101    1.7515   -0.2585
+observable =
+  logical
+   1
+#+end_src
+
+We can see that this representation is minimal:
+#+begin_src matlab :session :exports both :results output code
+minimal = observable && controllable
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+minimal =
+  logical
+   1
+#+end_src
+
+
+
+** HW2
+There were two derivations in HW2.
+One was a non minimal derivation:
+\begin{align*}
+\mathbf{A} &:= 
+\begin{bmatrix}
+0 & 1 & 0 & 0 & 0\\
+0 & -J_p b_r/J_t & (m_p \ell)^2 r g/J_t & - m_p r \ell b_p/J_t & -(m_p \ell)^2 r g/J_t \\
+0 & 0 & 0 & 1 & 0 \\
+0 & -m_p r \ell b_r/J_t & J_r m_p g \ell/J_t & -J_r b_p/J_t & -J_r m_p g \ell/J_t \\
+0 & 0 & 0 & 0 & 0
+\end{bmatrix} \\
+\mathbf{B} &:= \frac{1}{J_t}
+\begin{bmatrix}
+0 \\ J_p \\ 0 \\ m_p r \ell \\ 0
+\end{bmatrix} \\
+\mathbf{C} &:= 
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0
+\end{bmatrix}
+\end{align*}
+The other was a minimal derivation:
+\begin{align*}
+\mathbf{A} &:= 
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & -J_p b_r/J_t & (m_p \ell)^2 r g/J_t & -m_p r \ell b_p/J_t \\ 
+0 & 0 & 0 & 1 \\
+0 & -m_p r \ell b_r/J_t & J_r m_p g \ell/J_t & -J_r b_p/J_t
+\end{bmatrix} \\
+\mathbf{B} &:= \frac{1}{J_t}
+\begin{bmatrix}
+0 \\ J_p \\ 0 \\ m_p r \ell
+\end{bmatrix} \\
+\mathbf{C} &:= 
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 
+\end{bmatrix}
+\end{align*}
+*** Non-minimal Answer
+Defining our state space matrices:
+#+begin_src matlab :session :exports both :results output code
+% 5 state vector using x_3 = alpha
+A = [...
+  0, 1, 0, 0, 0;
+  0, -J_p*b_r/J_t, (m_p*ell)^2*r*g/J_t, -m_p*r*ell*b_p/J_t, -(m_p*ell)^2*r*g/J_t;
+  0, 0, 0, 1, 0;
+  0, -m_p*r*ell*b_r/J_t, J_r*m_p*g*ell/J_t, -J_r*b_p/J_t, -J_r*m_p*g*ell/J_t;
+  0, 0, 0, 0, 0]
+B = 1/J_t*[0; J_p; 0; m_p*r*ell; 0]
+C = [...
+    1 0 0 0 0;...
+    0 0 1 0 0];
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+A =
+         0    1.0000         0         0         0
+         0  -10.1274  152.0057   -0.5005 -152.0057
+         0         0         0    1.0000         0
+         0  -10.0097  264.3080   -0.8702 -264.3080
+         0         0         0         0         0
+B =
+   1.0e+04 *
+         0
+    1.0127
+         0
+    1.0010
+         0
+#+end_src
+
+Constructing the controllability matrix and checking the controllability:
+#+begin_src matlab :session :exports both :results output code
+Co = ctrb(A, B)
+controllable = length(A) == rank(Co)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+Co =
+   1.0e+09 *
+         0    0.0000   -0.0001    0.0027   -0.0456
+    0.0000   -0.0001    0.0027   -0.0456    1.0722
+         0    0.0000   -0.0001    0.0038   -0.0591
+    0.0000   -0.0001    0.0038   -0.0591    1.5175
+         0         0         0         0         0
+controllable =
+  logical
+   0
+#+end_src
+
+Constructing the observability matrix and checking the observability:
+#+begin_src matlab :session :exports both :results output code
+Ob = obsv(A, C)
+observable = length(A) == rank(Ob)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+Ob =
+   1.0e+04 *
+    0.0001         0         0         0         0
+         0         0    0.0001         0         0
+         0    0.0001         0         0         0
+         0         0         0    0.0001         0
+         0   -0.0010    0.0152   -0.0001   -0.0152
+         0   -0.0010    0.0264   -0.0001   -0.0264
+         0    0.0108   -0.1672    0.0158    0.1672
+         0    0.0110   -0.1752    0.0270    0.1752
+         0   -0.2666    5.7983   -0.1863   -5.7983
+         0   -0.3818    8.8116   -0.2042   -8.8116
+observable =
+  logical
+   1
+#+end_src
+
+We can see that this representation is non-minimal:
+#+begin_src matlab :session :exports both :results output code
+minimal = observable && controllable
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+minimal =
+  logical
+   0
+#+end_src
+
+*** Minimal Answer
+Defining our state space matrices:
+#+begin_src matlab :session :exports both :results output code
+% 4 state vector using x_3 = dalpha
+A = [...
+  0, 1, 0, 0;
+  0, -J_p*b_r/J_t, (m_p*ell)^2*r*g/J_t, -m_p*r*ell*b_p/J_t;
+  0, 0, 0, 1;
+  0, -m_p*r*ell*b_r/J_t, J_r*m_p*g*ell/J_t, -J_r*b_p/J_t]
+B = 1/J_t*[0; J_p; 0; m_p*r*ell]
+C = [...
+    1 0 0 0;...
+    0 0 1 0];
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+A =
+         0    1.0000         0         0
+         0  -10.1274  152.0057   -0.5005
+         0         0         0    1.0000
+         0  -10.0097  264.3080   -0.8702
+B =
+   1.0e+04 *
+         0
+    1.0127
+         0
+    1.0010
+#+end_src
+
+Constructing the controllability matrix and checking the controllability:
+#+begin_src matlab :session :exports both :results output code
+Co = ctrb(A, B)
+controllable = length(A) == rank(Co)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+Co =
+   1.0e+07 *
+         0    0.0010   -0.0108    0.2666
+    0.0010   -0.0108    0.2666   -4.5645
+         0    0.0010   -0.0110    0.3818
+    0.0010   -0.0110    0.3818   -5.9105
+controllable =
+  logical
+   1
+#+end_src
+
+Constructing the observability matrix and checking the observability:
+#+begin_src matlab :session :exports both :results output code
+Ob = obsv(A, C)
+observable = length(A) == rank(Ob)
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+Ob =
+   1.0e+03 *
+    0.0010         0         0         0
+         0         0    0.0010         0
+         0    0.0010         0         0
+         0         0         0    0.0010
+         0   -0.0101    0.1520   -0.0005
+         0   -0.0100    0.2643   -0.0009
+         0    0.1076   -1.6717    0.1575
+         0    0.1101   -1.7515    0.2701
+observable =
+  logical
+   1
+#+end_src
+
+We can see that this representation is minimal:
+#+begin_src matlab :session :exports both :results output code
+minimal = observable && controllable
+#+end_src
+
+#+RESULTS:
+#+begin_src matlab
+minimal =
+  logical
+   1
+#+end_src

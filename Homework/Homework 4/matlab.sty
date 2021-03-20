@@ -1,0 +1,93 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{matlab}
+
+\RequirePackage{verbatim}
+\RequirePackage{fancyvrb}
+\RequirePackage{alltt}
+\RequirePackage{upquote}
+\RequirePackage[framemethod=tikz]{mdframed}
+\RequirePackage{hyperref}
+\RequirePackage{color}
+\RequirePackage[margin=1in]{geometry}
+\RequirePackage{minted}
+
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\definecolor{outputbg}{rgb}{1,1,1}
+\setminted{frame=single,bgcolor=bg,samepage=true}
+
+
+\newcommand{\maxwidth}[1]{\ifdim\linewidth>#1 #1\else\linewidth\fi}
+\newcommand{\mlcell}[1]{{\color{output}\verbatim@font#1}}
+
+\definecolor{output}{gray}{0.4}
+
+% Unicode character conversions
+\DeclareUnicodeCharacter{B0}{\ensuremath{^\circ}}
+\DeclareUnicodeCharacter{21B5}{\ensuremath{\hookleftarrow}}
+
+% Paragraph indentation
+\setlength{\parindent}{0pt}
+
+% Hyperlink style
+\hypersetup{
+colorlinks=false
+}
+
+
+% environment styles for MATLAB code and output
+\mdfdefinestyle{matlabcode}{%
+  outerlinewidth=.5pt,
+  linecolor=gray!20!white,
+  roundcorner=2pt,
+  innertopmargin=.5\baselineskip,
+  innerbottommargin=.5\baselineskip,
+  innerleftmargin=1em,
+  backgroundcolor=gray!10!white
+}
+
+\newenvironment{matlabcode}{\minted[bgcolor=bg]{matlab}}{\endminted}
+%\surroundwithmdframed[style=matlabcode]{matlabcode}
+
+\newenvironment{matlaboutput}{\minted[bgcolor=outputbg]{matlab}}{\endminted}
+
+\newenvironment{matlabsymbolicoutput}{%
+  \list{}{\leftmargin=1.25em\relax}%
+  \item\relax%
+  \color{output}\verbatim@font%
+}{\endlist}
+
+\newenvironment{matlabtableoutput}[1]{%
+  {\color{output}%
+  \hspace*{1.25em}#1}%
+}{}
+
+
+% Table of Contents style
+\newcounter{multititle}
+\newcommand{\matlabmultipletitles}{\setcounter{multititle}{1}}
+
+\newcounter{hastoc}
+\newcommand{\matlabhastoc}{\setcounter{hastoc}{1}}
+
+\newcommand{\matlabtitle}[1]{
+\title{#1}
+\author{Jasper Chan - 37467164}
+\maketitle
+}
+
+\newcommand{\matlabheading}[1]{
+\section{#1}
+}
+
+\newcommand{\matlabheadingtwo}[1]{
+\subsection{#1}
+}
+
+\newcommand{\matlabheadingthree}[1]{
+\subsubsection{#1}
+}
+
+\newcommand{\matlabtableofcontents}[1]{
+\renewcommand{\contentsname}{#1}
+\tableofcontents
+}

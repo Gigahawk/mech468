@@ -1,6 +1,8 @@
 **.log
 **.svg
 **.pdf
+**.png
+**.eps
 **tex
 **.mp4
 **ltximg**
@@ -12,3 +14,6 @@
 **slprj
 **.m
 **.autosave
+**.out
+**.toc
+**.aux

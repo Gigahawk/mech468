@@ -1,0 +1,1263 @@
+#+TITLE: MECH 468 2019-2020 Final Solution
+#+AUTHOR: Jasper Chan - 37467164
+
+#+OPTIONS: toc:nil
+
+#+LATEX_HEADER: \definecolor{bg}{rgb}{0.95,0.95,0.95}
+#+LATEX_HEADER: \setminted{frame=single,bgcolor=bg,samepage=true}
+#+LATEX_HEADER: \setlength{\parindent}{0pt}
+#+LATEX_HEADER: \usepackage{float}
+#+LATEX_HEADER: \usepackage{svg}
+#+LATEX_HEADER: \usepackage{cancel}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amssymb}
+#+LATEX_HEADER: \usepackage{mathtools, nccmath}
+#+LATEX_HEADER: \sisetup{per-mode=fraction}
+#+LATEX_HEADER: \newcommand{\Lwrap}[1]{\left\{#1\right\}}
+#+LATEX_HEADER: \newcommand{\Lagr}[1]{\mathcal{L}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Lagri}[1]{\mathcal{L}^{-1}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Ztrans}[1]{\mathcal{Z}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\Ztransi}[1]{\mathcal{Z}^{-1}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\ZOH}[1]{\text{ZOH}\left(#1\right)}
+#+LATEX_HEADER: \newcommand{\rank}[1]{\text{rank}\left(#1\right)}
+#+LATEX_HEADER: \newcommand{\mathspan}[1]{\text{span}\Lwrap{#1}}
+#+LATEX_HEADER: \newcommand{\ident}{\mathbf{I}}
+#+LATEX_HEADER: \newcommand{\bfzero}{\mathbf{0}}
+#+LATEX_HEADER: \newcommand\basisof{\stackrel{\smash{\scriptscriptstyle\mathrm{\text{basis of}}}}{=}}
+#+LATEX_HEADER: \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+#+LATEX_HEADER: \makeatletter \AtBeginEnvironment{minted}{\dontdofcolorbox} \def\dontdofcolorbox{\renewcommand\fcolorbox[4][]{##4}} \makeatother
+
+#+LATEX_HEADER: \renewcommand\arraystretch{1.2}
+#+LATEX_HEADER: \usepackage{enumerate}
+
+
+#+begin_src ipython :session :results none :exports none
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+from IPython.display import set_matplotlib_formats
+%matplotlib inline
+set_matplotlib_formats('svg')
+#+end_src
+#+begin_src ipython :session :results none :exports none
+import IPython
+from tabulate import tabulate
+
+class OrgFormatter(IPython.core.formatters.BaseFormatter):
+    def __call__(self, obj):
+        if(isinstance(obj, str)):
+            return None
+        if(isinstance(obj, pd.core.indexes.base.Index)):
+            return None
+        try:
+            return tabulate(obj, headers='keys',
+                            tablefmt='orgtbl', showindex=False)
+        except:
+            return None
+
+ip = get_ipython()
+ip.display_formatter.formatters['text/org'] = OrgFormatter()
+#+end_src
+* Q1
+** (a)
+State-space models can be used to represent:
+
+#+ATTR_LATEX: :options [i.]
+1. only linear time-invariant systems.
+2. not only linear but also nonlinear time-invariant systems.
+3. not only linear time-invariant but also linear time-varying systems.
+4. nonlinear time-varying systems.
+*** Answer
+We can represent a nonlinear time-varying system in the form of a statespace equation like:
+\begin{align*}
+\dot{\mathbf{x}}
+&=
+\begin{bmatrix}
+E(t, x_1, x_2, ..., u_1, u_2,...) \\
+F(t, x_1, x_2, ..., u_1, u_2,...) \\
+\vdots
+\end{bmatrix} \\
+\mathbf{y}
+&=
+\begin{bmatrix}
+G(t, x_1, x_2, ..., u_1, u_2,...) \\
+H(t, x_1, x_2, ..., u_1, u_2,...) \\
+\vdots
+\end{bmatrix} \\
+\end{align*}
+
+Linear and time invariant systems have specialized forms of the general equation above, and are also covered.
+
+The answer is therefore *iv*
+** (b)
+If we linearize the nonlinear state equation $\dot{x} = -x^3 + x + u$ around operating point $(x_0, u_0) = (-1, 0)$, the linearized model is:
+
+#+ATTR_LATEX: :options [i.]
+1. $\delta \dot{x} = \delta x + \delta u$.
+2. $\delta \dot{x} = -\delta x + \delta u$.
+3. $\delta \dot{x} = -2\delta x + \delta u$.
+4. None of i, ii, iii is correct.
+*** Answer
+Finding our jacobians:
+\begin{align*}
+\left.
+\frac{\partial f}{\partial x}
+\right|_{(x, u) = (-1, 0)}
+&=
+\left.
+[-3 x^2 + 1]
+\right|_{(x, u) = (-1, 0)}
+&
+\left.
+\frac{\partial f}{\partial u}
+\right|_{(x, u) = (-1, 0)}
+&=
+\left.
+1
+\right|_{(x, u) = (-1, 0)}
+\\
+&= -2
+&
+&= 1
+\end{align*}
+
+Subbing in our operating point $x_0, u_0$, our linearized equation is:
+\begin{align*}
+\delta\dot{x} = -2\delta x + \delta u
+\end{align*}
+
+Therefore, *iii* is the answer
+** (c)
+Consider the two matrices
+$A_1
+=
+\begin{bmatrix}
+-1 & 1 \\
+0 & -1
+\end{bmatrix}$
+and
+$A_2
+=
+\begin{bmatrix}
+-0 & 1 \\
+-100 & -20
+\end{bmatrix}$.
+The continuous-time system $\dot{x} = Ax$ is:
+
+#+ATTR_LATEX: :options [i.]
+1. asymptotically stable for both $A = A_1$ and $A = A_2$.
+2. marginally stable for $A = A_1$ but asymptotically stable for $A = A_2$.
+3. asymptotically stable for $A = A_1$ but marginally stable for $A = A_2$.
+4. None of i, ii, iii is correct.
+*** Answer
+Checking the eigenvalues of $A_1$:
+\begin{align*}
+0
+&=
+|A_1 - \lambda I| \\
+&=
+\left|
+\begin{bmatrix}
+-1 - \lambda & 1 \\
+0 & -1 - \lambda
+\end{bmatrix}
+\right|
+\\
+0
+&=
+(-1 - \lambda)^2 \\
+\lambda_{1,2} &= -1
+\end{align*}
+
+Both eigenvalues are negative, therefore $A_1$ is asymptotically stable.
+
+Checking the eigenvalues of $A_2$:
+\begin{align*}
+0
+&=
+|A_2 - \lambda I| \\
+&=
+\left|
+\begin{bmatrix}
+-\lambda & 1 \\
+-100 & -20 - \lambda
+\end{bmatrix}
+\right|
+\\
+&=
+\lambda^2 + 20\lambda + 100 \\
+0
+&= 
+(\lambda + 10)^2 \\
+\lambda_{1,2} &= -10
+\end{align*}
+
+Both eigenvalues are negative, therefore $A_2$ is asymptotically stable.
+
+The answer is therefore $i$.
+** (d)
+For the nonlinear system $\dot{x} = -x^3 - x$, the following can be the Lyapunov function.
+
+#+ATTR_LATEX: :options [i.]
+1. $V(x) = x$.
+2. $V(x) = x^2$.
+3. $V(x) = x^3$.
+4. None of i, ii, iii is correct.
+*** Answer
+A Lyapunov function can be thought of as a system's "energy" at a given state $x$.
+For a system to be stable we want the trajectory of the system $\dot{x}$ to point away from the gradient $\nabla V(x)$ (towards a lower energy state).
+$V(x)$ should then be defined such that at the equilibrium point ($x = 0$ in this case), $V(x) = 0$, and any deviation from equilibrium should cause $V(x)$ to increase.
+
+Therefore, the answer is *ii*
+** (e)
+Consider two symmetric matrices
+$M_1
+=
+\begin{bmatrix}
+1 & -2 \\
+-2 & 1
+\end{bmatrix}$
+and
+$M_2
+=
+\begin{bmatrix}
+2 & -1 \\
+-1 & 2
+\end{bmatrix}$.
+Then,
+
+#+ATTR_LATEX: :options [i.]
+1. both $M_1$ and $M_2$ are positive definite.
+2. $M_1$ is positive definite but $M_2$ is not positive definite.
+3. $M_1$ is not positive definite but $M_2$ is positive definite.
+4. None of i, ii, iii is correct.
+
+*** Answer
+A matrix $P$ is positive definite if:
+\begin{align*}
+x^T P x > 0 & & \forall x \in \mathbb{R} \neq 0
+\end{align*}
+
+Of interest for hand calculations,a matrix is also positive definite if:
+1. All eigenvalues are greater than 0
+2. All upper left determinants are greater than 0
+
+We see that the upper left value of $M_1$ and $M_2$ are positive.
+Let's check their determinants:
+\begin{align*}
+|M_1|
+&=
+\left|
+\begin{bmatrix}
+1 & -2 \\
+-2 & 1
+\end{bmatrix}
+\right| \\
+&=
+(1)(1) - (-2)(-2) = 1 - 4 = -3 < 0
+\end{align*}
+
+$M_1$ is not positive definite.
+
+\begin{align*}
+|M_2|
+&=
+\left|
+\begin{bmatrix}
+2 & -1 \\
+-1 & 2
+\end{bmatrix}
+\right| \\
+&=
+(2)(2) - (-1)(-1) = 4 - 1 = 3 > 0
+\end{align*}
+
+$M_2$ is positive definite.
+
+Therefore the answer is *iii*
+** (f)
+A linear time-invariant system
+\begin{align*}
+\dot{x}
+&=
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}
+x
++
+\begin{bmatrix}
+0 \\ 1
+\end{bmatrix}
+u \\
+y
+&= 
+\begin{bmatrix}
+1 & 0
+\end{bmatrix}
+x
+\end{align*}
+is:
+
+#+ATTR_LATEX: :options [i.]
+1. both stabilizable and detectable.
+2. stabilizable but not detectable.
+3. not stabilizable but detectable.
+4. neither stabilizable nor detectable.
+*** Answer
+
+A system matrix $A$ is stabilizable if the uncontrollable portion $A_\bar{c}$ is stable, and detectable if the unobservable portion $A_\bar{o}$ is stable.
+
+Let's verify that the system is both uncontrollable unobservable:
+\begin{align*}
+\mathcal{C}
+&=
+\begin{bmatrix}
+B & AB & A^2B & ... & A^{n-1}B \\
+\end{bmatrix} \\
+&= 
+\begin{bmatrix}
+0 & 0 \\ 1 & 1
+\end{bmatrix} \\
+\rank{\mathcal{C}} &= 1 < n = 2
+\end{align*}
+
+We can see that the system is uncontrollable.
+
+\begin{align*}
+\mathcal{O}
+&=
+\begin{bmatrix}
+C & CA & CA^2 & ... & CA^{n-1} \\
+\end{bmatrix} \\
+&= 
+\begin{bmatrix}
+1 & 0 \\ 1 & 0
+\end{bmatrix} \\
+\rank{\mathcal{O}} &= 1 < n = 2
+\end{align*}
+We can see that the system is unobservable.
+
+We see that $A$ has positive eigenvalues $\lambda_{1,2} = 1$, which means that the uncontrollable and unobservable submatrices of $A$ must also have positive eigenvalues, and therefore the system is neither stabilizable nor detectable.
+
+The answer is therefore *iv*
+
+** (g)
+For the 1-by-2 transfer matrix
+$G(s)
+=
+\begin{bmatrix}
+\dfrac{1}{s^2} &
+\dfrac{1}{s}
+\end{bmatrix}$,
+the McMillan degree is:
+
+#+ATTR_LATEX: :options [i.]
+1. 2.
+2. 3.
+3. 4.
+4. None of i, ii, iii is correct.
+*** Answer
+The McMillan degree describes the dimensionality (length of the state vector) of the minimal realization of a system.
+
+For a MISO system ($G(s)$ is a row vector), the minimal realization is achieved with observable canonical form:
+\begin{align*}
+G(s)
+&=
+\begin{bmatrix}
+\dfrac{1}{s^2} &
+\dfrac{1}{s}
+\end{bmatrix} \\
+&=
+\frac{1}{s^2}
+\begin{bmatrix}
+1 & s
+\end{bmatrix} \\
+&=
+\frac{1}{s^2}
+\left\{
+s
+\begin{bmatrix}
+0 & 1
+\end{bmatrix}
++
+1
+\begin{bmatrix}
+1 & 0
+\end{bmatrix}
+\right\}
+\\
+\dot{x}
+&=
+\begin{bmatrix}
+0 & 0 \\
+1 & 0
+\end{bmatrix}
+x
++
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}u
+\end{align*}
+
+Here we see that the state matrix has length 2.
+
+Therefore, the answer is *i*
+** (h)
+If a linear time-invariant system $\dot{x} = Ax + Bu, y = Cx$ is asymptotically stable, then the system is:
+
+#+ATTR_LATEX: :options [i.]
+1. always both stabilizable and detectable.
+2. always stabilizable but not always detectable.
+3. not always stabilizable but always detectable.
+4. None of i, ii, iii is correct.
+*** Answer
+If the system is asymptotically stable, we know that all of the eigenvalues are less than 0, and therefore uncontrollable/unobservable subsets of the system must also have eigenvalues less than 0.
+
+The answer is therefore *i*.
+** (i)
+The solution to the ordinary differential equation $\dot{x} = -x$ with the boundary condition $x(1) = 2$ is
+
+#+ATTR_LATEX: :options [i.]
+1. $x(t) = 2$.
+2. $x(t) = 2e^{-t + 1}$.
+3. $x(t) = 2e^{-t - 1}$.
+4. None of i, ii, iii is correct.
+*** Answer
+We could of course, take the derivative of each equation individually to find the answer, but this is a separable differential equation, so it's easy to solve explicitly:
+\begin{align*}
+\frac{dx}{dt} &= -x \\
+\frac{1}{x} dx &= -dt \\
+\int\frac{1}{x} dx &= -\int dt \\
+\ln{x} &= -t + C \\
+e^\ln{x} &= e^{-t + C} \\
+x(t) &= e^{-t + C}
+\end{align*}
+Plugging in our boundary condition:
+\begin{align*}
+x(1) =
+e^{-1 + C} &= 2 \\
+\ln{e^{-1 + C}} &= \ln{2} \\
+-1 + C &= \ln{2} \\
+C &= \ln{2} + 1 \\
+\end{align*}
+The solution is then:
+\begin{align*}
+x(t) &= e^{-t + \ln{2} + 1} \\
+x(t) &= e^{-t + 1}e^\ln{2} \\
+x(t) &= 2e^{-t + 1} \\
+\end{align*}
+Therefore, the answer is *ii*
+** (j)
+Discrete-time finite-horizon LQR requires offline computation of the controller gain $K[k]$, while one-step Kalman filter requires offline computation of the error covariance matrix $P[k|k - 1]$.
+
+#+ATTR_LATEX: :options [i.]
+1. Both $K[k]$ and $P[k|k - 1]$ are computed forward in time $k$.
+2. Both $K[k]$ and $P[k|k - 1]$ are computed backward in time $k$.
+3. $K[k]$ is computed forward in time $k$, while $P[k|k - 1]$ is computed backward in time $k$.
+4. $K[k]$ is computed backward in time $k$, while $P[k|k - 1]$ is computed forward in time $k$.
+*** Answer
+For discrete-time finite-horizon LQR, the controller gain $K[k]$ is given as:
+\begin{align*}
+K[k]
+&=
+\left[
+R + B^T P[k + 1]B
+\right]^{-1}
+B^T P[k + 1] A
+\end{align*}
+Here, the only variable that is not given or chosen is $P[k]$, which is defined as:
+\begin{align*}
+P[k]
+&=
+A^T P[k + 1]A + Q - A^T P[k + 1] B
+\left[
+R + B^T P[k + 1] B
+\right]^{-1}
+B^T P[k + 1] A \\
+P[k_f] &= S
+\end{align*}
+
+We can see that $P[k]$ is defined recursively with a base condition at the final time step $k_f$.
+Therefore, $K[k]$ is computed backwards in time from $k = k_f$ to $k = 0$.
+
+For a discrete-time Kalman filter, the post measurement estimate is given as:
+\begin{align*}
+\hat{x}[k|k]
+&= 
+\hat{x}[k|k - 1]
++
+P[k|k]
+C^T
+R_v^{-1}
+(y[k]
+-
+C
+\hat{x}[k|k - 1]
+)
+\end{align*}
+
+We see that it depends on an updated error covariance which is given as:
+\begin{align*}
+P[k|k]
+&=
+P[k|k - 1]
+-
+P[k|k - 1]
+C^T
+(
+C
+P[k|k - 1]
+C^T
++
+R_v
+)^{-1}
+C
+P[k|k - 1]
+\end{align*}
+
+We can see that this depends on a past error covariance $P[k|k - 1]$, which for $k = 0$ we must define some initial value $P[0|-1]$ so that the Kalman Filter can be computed forward in time.
+
+Therefore, the answer is *iv*.
+* Q2
+Derive the state-space model of the following systems.
+Your answers should be in a matrix-vector form:
+\begin{align*}
+\dot{x}
+&=
+Ax + Bu \\
+y
+&=
+Cx + Du
+\end{align*}
+** (a)
+An electrical circuit in the figure below, where
+- the input voltage is $u(t)$,
+- the output voltage is $y(t)$, and
+- $R$, $L$, and $C$ are resistance, inductance and capacitance, respectively.
+#+ATTR_LATEX: :width 0.7\textwidth
+[[file:2a.png]]
+*** Answer
+A circuit diagram conveniently maps to a linear graph, which we can use to find the differential equations for the system.
+
+For an A-Type element such as our capacitor $C$, we pick an across variable $v_C$.
+For a T-Type element such as our inductor $L$, we pick a through variable $i_L$.
+\begin{align*}
+x = 
+\begin{bmatrix}
+x_1 \\ x_2
+\end{bmatrix}
+&=
+\begin{bmatrix}
+v_C \\ i_L
+\end{bmatrix}
+\end{align*}
+
+Writing down our constitutive equations:
+\begin{align*}
+C\frac{dv_C}{dt} &= i_C \\
+L\frac{di_L}{dt} &= v_L = v_C \\
+v_R &= R i_R
+\end{align*}
+
+Finding the equation for $\dot{x}_1$:
+\begin{align*}
+\dot{x}_1
+= 
+\frac{dv_C}{dt}
+&=
+\frac{1}{C} i_C
+\end{align*}
+The node equation at the intersection of $(R, L, C)$ is:
+\begin{align*}
+i_R &= i_L + i_C \\
+i_C &= i_R - i_L \\
+&= i_R - x_2
+\end{align*}
+Continuing our expansion:
+\begin{align*}
+\dot{x}_1
+&=
+\frac{1}{C} i_C & i_C &= i_R - x_2 \\
+&= 
+\frac{1}{C} (i_R - x_2) & v_R &= R i_R \\
+&=
+\frac{1}{C}
+\left(
+\frac{1}{R} v_R - x_2
+\right)
+\end{align*}
+The loop equation through $(u, R, L)$ is:
+\begin{align*}
+u &= v_R + v_L \\
+v_R &= u - v_L \\
+&= u - v_C \\
+&= u - x_1 \\
+\end{align*}
+
+Finishing our expansion:
+\begin{align*}
+\dot{x}_1
+&=
+\frac{1}{C}
+\left(
+\frac{1}{R} v_R - x_2
+\right) & v_R &= u - x_1 \\
+&=
+\frac{1}{C}
+\left(
+\frac{1}{R} (u - x_1) - x_2
+\right)
+\end{align*}
+
+Finding the equation for $\dot{x}_2$:
+\begin{align*}
+\dot{x}_2
+= 
+\frac{di_L}{dt}
+&=
+\frac{1}{L} v_C \\
+&=
+\frac{1}{L} x_1
+\end{align*}
+
+Expanding out our coefficients:
+\begin{align*}
+\dot{x}_1
+&=
+-
+\frac{1}{RC}
+x_1
+-
+\frac{1}{C}
+x_2
++
+\frac{1}{RC}
+u \\
+\dot{x}_2
+&=
+\frac{1}{L} x_1
+\end{align*}
+
+Our output equation is:
+\begin{align*}
+y(t) = v_c = x_1
+\end{align*}
+
+Our state space equations are then:
+\begin{align*}
+\dot{x}
+&=
+\begin{bmatrix}
+-\frac{1}{RC} & -\frac{1}{C} \\
+\frac{1}{L} & 0
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\ x_2
+\end{bmatrix}
++
+\begin{bmatrix}
+\frac{1}{RC} \\ 0
+\end{bmatrix}
+u \\
+y
+&=
+\begin{bmatrix}
+1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\ x_2
+\end{bmatrix}
+\end{align*}
+
+** (b)
+A mass-spring damper system in the figure below, where
+- the input is the *velocity* $\dot{w}(t)$ (where $w$ is the displacement of the massless plate at the left-side of the figure),
+- the three outputs are position $z(t)$, velocity $\dot{z}(t)$, and acceleration $\ddot{z}(t)$ of the mass $m$, and
+- $m$, $b$, $k$ are mass, damping constant, and spring constant, respectively.
+#+ATTR_LATEX: :width 0.5\textwidth
+[[file:2b.png]]
+*Hint:* Take the displacement $w$ as one of the states
+*** Answer
+The formulation of this problem makes it challenging to solve with a linear graph.
+However because it is a simple spring mass damper system we can just use the equations of motion directly:
+\begin{align*}
+m\ddot{z} + b(\dot{z} - \dot{w}) + k(z - w) &= 0 \\
+\end{align*}
+If we now take our state to be:
+\begin{align*}
+x = 
+\begin{bmatrix}
+x_1 \\ x_2 \\ x_3
+\end{bmatrix}
+&=
+\begin{bmatrix}
+z \\ \dot{z} \\ w
+\end{bmatrix}
+\end{align*}
+
+Now we can write the differential equations for each state:
+\begin{align*}
+\dot{x}_1 &= \dot{z} = x_2 \\
+\dot{x}_2 &= \ddot{z} = \frac{1}{m}(-b(\dot{z} - \dot{w}) - k(z - w)) \\
+&=
+-
+\frac{b}{m}
+\dot{z}
++
+\frac{b}{m}
+\dot{w}
+-\frac{k}{m}
+z
++
+\frac{k}{m}
+w
+\\
+&=
+-
+\frac{b}{m}
+x_2
++
+\frac{b}{m}
+u
+-\frac{k}{m}
+x_1
++
+\frac{k}{m}
+x_3
+\\
+&=
+-
+\frac{k}{m}
+x_1
+-
+\frac{b}{m}
+x_2
++
+\frac{k}{m}
+x_3
++
+\frac{b}{m}
+u
+\\
+\dot{x}_3 &= \dot{w} = u
+\end{align*}
+Writing our output equations:
+\begin{align*}
+z(t)
+&=
+x_1
+\\
+\dot{z}(t)
+&=
+x_2
+\\
+\ddot{z}(t)
+&=
+-
+\frac{b}{m}
+x_2
++
+\frac{b}{m}
+u
+-\frac{k}{m}
+x_1
++
+\frac{k}{m}
+x_3
+\\
+&=
+-
+\frac{k}{m}
+x_1
+-
+\frac{b}{m}
+x_2
++
+\frac{k}{m}
+x_3
++
+\frac{b}{m}
+u
+\end{align*}
+
+Our state space equations are then:
+\begin{align*}
+\dot{x}
+&=
+\begin{bmatrix}
+0 & 1 & 0 \\
+-\frac{k}{m} & -\frac{b}{m} & \frac{k}{m} \\
+0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\ x_2 \\ x_3
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\ \frac{b}{m} \\ 1
+\end{bmatrix}
+u
+\\
+y
+=
+\begin{bmatrix}
+z \\ \dot{z} \\ \ddot{z}
+\end{bmatrix}
+&=
+\begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+-\frac{k}{m} & -\frac{b}{m} & \frac{k}{m}
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\ x_2 \\ x_3
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\ 0 \\ \frac{b}{m}
+\end{bmatrix}
+u
+\end{align*}
+* Q3
+For the following continuous-time state-space equation, answer the following questions.
+\begin{align*}
+\dot{x}
+&=
+\underbrace{
+\begin{bmatrix}
+2 & 1 \\
+0 & -2
+\end{bmatrix}
+}_{A}
+x
++
+\underbrace{
+\begin{bmatrix}
+1 \\ 0
+\end{bmatrix}
+}_{B} 
+u
+\\
+y
+&=
+\underbrace{
+\begin{bmatrix}
+0 & 1
+\end{bmatrix}
+}_{C}
+x
+\end{align*}
+** (a)
+Compute the matrix exponential $e^{At}$.
+*** Answer via Nilpotent Matrix
+The index of a nilpotent matrix ($i \ni A^i = 0$) is always greater than or equal to $n$.
+For a 2 by 2 matrix, we can simply check the square to know if it is nilpotent:
+\begin{align*}
+A^2
+&=
+\begin{bmatrix}
+2 & 1 \\
+0 & -2
+\end{bmatrix}
+\begin{bmatrix}
+2 & 1 \\
+0 & -2
+\end{bmatrix}
+\\
+&=
+\begin{bmatrix}
+2 \times 2 + 0 \times 1 & 1 \times 2 + (-2) \times 1 \\
+2 \times 0 + 0 \times (-2) & 1 \times 0 + (-2) \times (-2)
+\end{bmatrix}
+\\
+&=
+\begin{bmatrix}
+4 & 0 \\
+0 & 4
+\end{bmatrix}
+\end{align*}
+We can see that the matrix is not nilpotent, we cannot compute $e^{At}$ using the definition
+*** Answer via Diagonalization
+*This method is pretty algebra intensive, not recommended for a test*
+
+The matrix exponential can be defined for a diagonalizable matrix as:
+\begin{align*}
+e^{At} &= T e^{Dt} T^{-1} \\
+T &:=
+\begin{bmatrix}
+v_1 & v_2 & \hdots & v_n
+\end{bmatrix} \\
+D &:=
+\begin{bmatrix}
+\lambda_1 \\
+& \lambda_2 \\
+&& \ddots \\
+&&& \lambda_n
+\end{bmatrix}
+\end{align*}
+
+First let's find the eigenvalues of $A$:
+\begin{align*}
+0 &= |A - \lambda I| \\
+&=
+\left|
+\begin{bmatrix}
+2 - \lambda & 1 \\
+0 & -2 - \lambda
+\end{bmatrix}
+\right| \\
+&=
+(2 - \lambda)(-2 - \lambda) - 0 \\
+&= \lambda^2 - 4 \\
+\lambda &= \pm 2
+\end{align*}
+
+Plugging in to find the eigenvectors of $A$:
+\begin{align*}
+\begin{bmatrix}
+2 - \lambda & 1 \\
+0 & -2 - \lambda
+\end{bmatrix}
+\begin{bmatrix}
+x_1 \\ x_2
+\end{bmatrix}
+= 0
+\end{align*}
+
+For $\lambda_1 = 2$, we get:
+\begin{align*}
+\begin{bmatrix}
+x_2 \\ -4x_2
+\end{bmatrix}
+&=
+0
+\\
+x_1 &\neq 0 \\
+x_2 &= 0 \\
+v_1
+&=
+\begin{bmatrix}
+1 \\ 0
+\end{bmatrix}
+\end{align*}
+
+For $\lambda_2 = -2$, we get:
+\begin{align*}
+\begin{bmatrix}
+4 x_1 + x_2 \\ 0
+\end{bmatrix}
+&=
+0
+\\
+x_2 &= -4x_1 \\
+v_2
+&=
+\begin{bmatrix}
+-1 \\ 4
+\end{bmatrix}
+\end{align*}
+
+Our matrix $T$ is then:
+\begin{align*}
+T &=
+\begin{bmatrix}
+1 & -1 \\
+0 & 4
+\end{bmatrix}
+\\
+T^{-1}
+&=
+\frac
+{1}
+{(1)(4) - (-1)(0)}
+\begin{bmatrix}
+4 & 1 \\
+0 & 1
+\end{bmatrix}
+\\
+&=
+\begin{bmatrix}
+1 & 0.25 \\
+0 & 0.25
+\end{bmatrix}
+\end{align*}
+
+The matrix exponential is then:
+\begin{align*}
+e^{At} &= T e^{Dt} T^{-1} \\
+&=
+\begin{bmatrix}
+1 & -1 \\
+0 & 4
+\end{bmatrix}
+\begin{bmatrix}
+e^{2t} & 0 \\
+0 & e^{-2t}
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0.25 \\
+0 & 0.25
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+e^{2t} & \frac{e^{2t} - e^{-2t}}{4} \\
+0 & e^{-2t}
+\end{bmatrix}
+\end{align*}
+
+*** Answer via Laplace Transform
+The matrix exponential can be defined as:
+\begin{align*}
+e^{At}
+&=
+\Lagri{
+(sI - A)^{-1}
+}
+\end{align*}
+Calculating our inverse:
+\begin{align*}
+(sI - A)^{-1}
+&=
+\begin{bmatrix}
+s - 2 & -1 \\
+0 & s + 2
+\end{bmatrix}^{-1} \\
+&=
+\frac{1}{(s - 2)(s + 2) - 0}
+\begin{bmatrix}
+s + 2 & 1 \\
+0 & s - 2
+\end{bmatrix} \\
+\end{align*}
+
+Doing a partial fraction expansion:
+\begin{align*}
+\frac{1}{(s - 2)(s + 2)}
+\begin{bmatrix}
+s + 2 & 1 \\
+0 & s - 2
+\end{bmatrix}
+&=
+\frac{1}{s - 2}
+K_1
++
+\frac{1}{s + 2}
+K_2
+\\
+\begin{bmatrix}
+s + 2 & 1 \\
+0 & s - 2
+\end{bmatrix}
+&=
+(s + 2)
+K_1
++
+(s - 2)
+K_2
+\\
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}
+s
++
+\begin{bmatrix}
+2 & 1 \\
+0 & - 2
+\end{bmatrix}
+&=
+(K_1 + K_2)s + 2(K_1 - K_2) \\
+K_1 + K_2
+&=
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix} \\
+K_1 - K_2
+&=
+\begin{bmatrix}
+1 & \frac{1}{2} \\
+0 & -1
+\end{bmatrix} \\
+K_1
+&=
+\begin{bmatrix}
+1 & \frac{1}{4} \\
+0 & 0
+\end{bmatrix} \\
+K_2
+&=
+\begin{bmatrix}
+0 & \frac{1}{4} \\
+0 & 1
+\end{bmatrix} \\
+\end{align*}
+
+Our matrix exponent is then:
+\begin{align*}
+e^{At}
+&=
+\Lagri{
+(sI - A)^{-1}
+} \\
+&=
+\Lagri{
+\frac{1}{s - 2}
+\begin{bmatrix}
+1 & \frac{1}{4} \\
+0 & 0
+\end{bmatrix}
++
+\frac{1}{s + 2}
+\begin{bmatrix}
+0 & \frac{1}{4} \\
+0 & 1
+\end{bmatrix}
+} \\
+&=
+e^{2t}
+\begin{bmatrix}
+1 & \frac{1}{4} \\
+0 & 0
+\end{bmatrix}
++
+e^{-2t}
+\begin{bmatrix}
+0 & \frac{1}{4} \\
+0 & 1
+\end{bmatrix}
+\end{align*}
+** (b)
+Check the controllability of the system.
+*** Answer
+Our controllability matrix is:
+\begin{align*}
+\mathcal{C}
+&=
+\begin{bmatrix}
+B AB
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+\begin{bmatrix}
+1 \\ 0
+\end{bmatrix}
+&
+\begin{bmatrix}
+2 & 1 \\
+0 & -2
+\end{bmatrix}
+\begin{bmatrix}
+1 \\ 0
+\end{bmatrix}
+\end{bmatrix} \\
+&=
+\begin{bmatrix}
+\begin{bmatrix}
+1 \\ 0
+\end{bmatrix}
+&
+\begin{bmatrix}
+2 \\ 0
+\end{bmatrix}
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & 2 \\
+0 & 0
+\end{bmatrix}
+\end{align*}
+We can see that $\rank{\mathcal{C}} = 1 < 2$ therefore the system is not controllable.
+
+** (c)
+Check the stabilizability of the system
+*** Answer
+The system is already Kalman decomposed, so we only need to check the uncontrollable portion of the system for stability.
+
+We see that the bottom right value $A_\bar{c} = -2$ is negative making it stable, therefore the system is stabilizable.
+
+** (d)
+Select appropriate closed-loop poles, and design a stabilizing state-feedback controller $u = -Kx$.
+*** Answer
+We can't move the $-2$ pole, let's pick $-1$ as our other pole.
+Our characteristic polynomial is then:
+\begin{align*}
+0 &= (s - (-2))(s - (-1)) \\
+&=
+0 &= (s + 2)(s + 1) \\
+\end{align*}
+
+Using the direct method to solve for our gains:
+\begin{align*}
+|sI - (A - BK)|
+&=
+\left|
+\begin{bmatrix}
+s & 0 \\
+0 & s
+\end{bmatrix}
+-
+\left(
+\begin{bmatrix}
+2 & 1 \\
+0 & -2
+\end{bmatrix}
+-
+\begin{bmatrix}
+1 \\ 0
+\end{bmatrix}
+\begin{bmatrix}
+k_1 & k_2
+\end{bmatrix}
+\right)
+\right| \\
+&=
+\left|
+\begin{bmatrix}
+s & 0 \\
+0 & s
+\end{bmatrix}
+-
+\left(
+\begin{bmatrix}
+2 & 1 \\
+0 & -2
+\end{bmatrix}
+-
+\begin{bmatrix}
+k_1 & k_2 \\
+0 & 0
+\end{bmatrix}
+\right)
+\right| \\
+&=
+\left|
+\begin{bmatrix}
+s & 0 \\
+0 & s
+\end{bmatrix}
+-
+\begin{bmatrix}
+2 - k_1 & 1 - k_2\\
+0 & -2
+\end{bmatrix}
+\right| \\
+&=
+\left|
+\begin{bmatrix}
+s - 2 + k_1 & - 1 + k_2 \\
+0 & s + 2
+\end{bmatrix}
+\right| \\
+&=
+(s + (-2 + k_1))(s + 2) \\
+-2 + k_1 &= 1 \\
+k_1 &= 3 \\
+k_2 &= 0
+\end{align*}
+
+
+
+
